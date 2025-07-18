@@ -1,0 +1,256 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="mb-8 flex justify-between items-center">
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+        Verification Attempts
+    </h1>
+    <div class="flex space-x-4">
+        <a href="{{ url_for('admin.security_dashboard') }}" class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            <span>Back to Security Dashboard</span>
+        </a>
+    </div>
+</div>
+
+<!-- Filter Options -->
+<div class="glass-effect p-4 rounded-2xl mb-6">
+    <div class="flex flex-wrap items-center space-x-4">
+        <div class="font-medium text-gray-700">Filter by:</div>
+        
+        <!-- Status filter -->
+        <div class="relative">
+            <select id="statusFilter" class="appearance-none bg-white border border-gray-300 rounded-md py-2 pl-3 pr-10 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="">All Status</option>
+                <option value="success" {% if success_filter == 'success' %}selected{% endif %}>Successful</option>
+                <option value="failure" {% if success_filter == 'failure' %}selected{% endif %}>Failed</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+        
+        <!-- Type filter -->
+        <div class="relative">
+            <select id="typeFilter" class="appearance-none bg-white border border-gray-300 rounded-md py-2 pl-3 pr-10 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="">All Types</option>
+                {% for type in verification_types %}
+                <option value="{{ type }}" {% if type_filter == type %}selected{% endif %}>{{ type|capitalize }}</option>
+                {% endfor %}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+        
+        <!-- Apply filters button -->
+        <button id="applyFilters" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+            Apply Filters
+        </button>
+        
+        <!-- Clear filters link -->
+        <a href="{{ url_for('admin.verification_attempts') }}" class="text-blue-600 hover:text-blue-800">
+            Clear Filters
+        </a>
+    </div>
+</div>
+
+<!-- Verification Attempts Table -->
+<div class="glass-effect rounded-2xl p-6">
+    {% if attempts.items %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="text-left border-b border-gray-200">
+                    <th class="px-6 py-4 text-gray-600 font-semibold">ID</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">Type</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">User</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">Vehicle</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">Status</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">IP Address</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">Date/Time</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attempt in attempts.items %}
+                <tr class="hover:bg-blue-50 transition-colors">
+                    <td class="px-6 py-4">{{ attempt.id }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center space-x-2">
+                            {% if attempt.verification_type == 'face' %}
+                            <i class="fas fa-user text-blue-600"></i>
+                            {% elif attempt.verification_type == 'qr_code' %}
+                            <i class="fas fa-qrcode text-blue-600"></i>
+                            {% elif attempt.verification_type == 'certificate' %}
+                            <i class="fas fa-certificate text-blue-600"></i>
+                            {% else %}
+                            <i class="fas fa-question-circle text-blue-600"></i>
+                            {% endif %}
+                            <span>{{ attempt.verification_type|capitalize }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if attempt.user %}
+                        <a href="{{ url_for('admin.edit_user', user_id=attempt.user_id) }}" class="text-blue-600 hover:text-blue-800">
+                            {{ attempt.user.username }}
+                        </a>
+                        {% else %}
+                        <span class="text-gray-500">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if attempt.vehicle %}
+                        <a href="{{ url_for('admin.edit_vehicle', vehicle_id=attempt.vehicle_id) }}" class="text-blue-600 hover:text-blue-800">
+                            {{ attempt.vehicle.vehicle_number }}
+                        </a>
+                        {% else %}
+                        <span class="text-gray-500">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if attempt.is_successful %}
+                        <span class="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs">Success</span>
+                        {% else %}
+                        <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs">Failed</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-gray-600">{{ attempt.ip_address or 'N/A' }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ attempt.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td class="px-6 py-4">
+                        {% if not attempt.is_successful and attempt.failure_reason %}
+                        <button data-id="{{ attempt.id }}" data-details="{{ attempt.failure_reason|replace('\'', '\\\'') }}" class="show-details text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                        {% else %}
+                        <span class="text-gray-500">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if attempts.pages > 1 %}
+    <div class="flex justify-center mt-6 space-x-2">
+        {% if attempts.has_prev %}
+        <a href="{{ url_for('admin.verification_attempts', page=attempts.prev_num, success=success_filter, type=type_filter) }}" 
+           class="px-4 py-2 rounded-lg bg-white text-gray-600 hover:bg-blue-50 transition-colors">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        {% endif %}
+        
+        {% for page in range(attempts.page - 2 if attempts.page > 2 else 1, attempts.page + 3 if attempts.page + 3 <= attempts.pages else attempts.pages + 1) %}
+        <a href="{{ url_for('admin.verification_attempts', page=page, success=success_filter, type=type_filter) }}" 
+           class="px-4 py-2 rounded-lg {% if page == attempts.page %}bg-blue-600 text-white{% else %}bg-white text-gray-600 hover:bg-blue-50{% endif %} transition-colors">
+            {{ page }}
+        </a>
+        {% endfor %}
+        
+        {% if attempts.has_next %}
+        <a href="{{ url_for('admin.verification_attempts', page=attempts.next_num, success=success_filter, type=type_filter) }}" 
+           class="px-4 py-2 rounded-lg bg-white text-gray-600 hover:bg-blue-50 transition-colors">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="text-center py-10">
+        <div class="text-4xl text-gray-300 mb-4">
+            <i class="fas fa-search"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-500">No verification attempts found</h3>
+        <p class="text-gray-500 mt-2">Try adjusting your filters or check back later</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Error Details Modal -->
+<div id="detailsModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Failure Details</h3>
+            <button id="closeModal" class="text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="detailsContent" class="py-4 text-gray-700"></div>
+        <div class="mt-4 flex justify-end">
+            <button id="closeModalBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up filter form
+    document.getElementById('applyFilters').addEventListener('click', function() {
+        var statusFilter = document.getElementById('statusFilter').value;
+        var typeFilter = document.getElementById('typeFilter').value;
+        
+        var url = "{{ url_for('admin.verification_attempts') }}?";
+        
+        if (statusFilter) {
+            url = url + "success=" + statusFilter + "&";
+        }
+        
+        if (typeFilter) {
+            url = url + "type=" + typeFilter + "&";
+        }
+        
+        // Remove trailing & if it exists
+        if (url.charAt(url.length - 1) === '&') {
+            url = url.slice(0, -1);
+        }
+        
+        window.location.href = url;
+    });
+    
+    // Set up detail buttons
+    var detailButtons = document.querySelectorAll('.show-details');
+    detailButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var details = this.getAttribute('data-details');
+            showDetails(details);
+        });
+    });
+    
+    // Set up close modal buttons
+    document.getElementById('closeModal').addEventListener('click', hideDetails);
+    document.getElementById('closeModalBtn').addEventListener('click', hideDetails);
+    
+    // Close modal when clicking outside
+    document.getElementById('detailsModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideDetails();
+        }
+    });
+    
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !document.getElementById('detailsModal').classList.contains('hidden')) {
+            hideDetails();
+        }
+    });
+});
+
+function showDetails(details) {
+    document.getElementById('detailsContent').textContent = details || 'No detailed information available';
+    document.getElementById('detailsModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function hideDetails() {
+    document.getElementById('detailsModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Verification System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#ffeaed',
+                            100: '#ffd5db',
+                            200: '#ffabb7',
+                            300: '#ff8293',
+                            400: '#ff586f',
+                            500: '#da1a32',
+                            600: '#c0162c',
+                            700: '#a00c30',
+                            800: '#800626',
+                            900: '#000000',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+        }
+        .hero-gradient {
+            background: linear-gradient(120deg, #a00c30 0%, #da1a32 100%);
+        }
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .nav-link {
+            position: relative;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #da1a32;
+            transition: width 0.2s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .wave-divider {
+            aspect-ratio: 960/150;
+            width: 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="bg-black/90 backdrop-blur-md shadow-sm fixed w-full z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center">
+                    <span class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <span class="ml-2 text-2xl font-bold text-white">Secure Vehicle Verification System</span>
+                    </span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="nav-link text-gray-300 hover:text-primary-600 transition-colors font-medium px-1">Features</a>
+                    <a href="#how-it-works" class="nav-link text-gray-300 hover:text-primary-600 transition-colors font-medium px-1">How It Works</a>
+                    <a href="/register" class="nav-link text-gray-300 hover:text-primary-600 transition-colors font-medium px-1">Register</a>
+                    <a href="/login" class="nav-link text-gray-300 hover:text-primary-600 transition-colors font-medium px-1">Login</a>
+                    <a href="/admin/login" class="flex items-center px-5 py-2.5 border border-transparent rounded-full text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition duration-200">
+                        <i class="fas fa-user-shield mr-2"></i>
+                        Admin
+                    </a>
+                </div>
+                <div class="flex md:hidden items-center">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-primary-600 hover:text-primary-800 hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500 transition">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu, show/hide based on menu state -->
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="pt-2 pb-3 space-y-1 px-4">
+                <a href="#features" class="block py-2.5 px-4 rounded-lg text-base font-medium text-gray-300 hover:bg-gray-900 hover:text-primary-500 transition-colors">Features</a>
+                <a href="#how-it-works" class="block py-2.5 px-4 rounded-lg text-base font-medium text-gray-300 hover:bg-gray-900 hover:text-primary-500 transition-colors">How It Works</a>
+                <a href="/register" class="block py-2.5 px-4 rounded-lg text-base font-medium text-gray-300 hover:bg-gray-900 hover:text-primary-500 transition-colors">Register</a>
+                <a href="/login" class="block py-2.5 px-4 rounded-lg text-base font-medium text-gray-300 hover:bg-gray-900 hover:text-primary-500 transition-colors">Login</a>
+                <a href="/admin/login" class="block py-2.5 px-4 rounded-lg text-base font-medium text-primary-500 bg-gray-900">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-20">
+        {% block content %}
+        <!-- Redesigned Hero Section - Split Design with Angled Elements -->
+<section class="hero-section relative overflow-hidden">
+    <!-- Background Pattern & Gradient -->
+    <div class="absolute inset-0 hero-gradient"></div>
+    <div class="absolute inset-0 bg-pattern opacity-10"></div>
+    
+    <!-- Diagonal Divider -->
+    <div class="absolute inset-0 overflow-hidden">
+        <svg class="absolute h-full w-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+            <polygon points="0,0 100,0 100,20 0,60" class="fill-dark-900/30"></polygon>
+            <polygon points="0,60 100,20 100,40 0,80" class="fill-dark-900/20"></polygon>
+        </svg>
+    </div>
+    
+    <!-- Animated Particles -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="particle particle-1"></div>
+        <div class="particle particle-2"></div>
+        <div class="particle particle-3"></div>
+        <div class="particle particle-4"></div>
+        <div class="particle particle-5"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 lg:py-32">
+        <!-- Split Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-x-16 gap-y-12 items-center">
+            <!-- Left Side Content (3 cols) -->
+            <div class="lg:col-span-3 lg:pr-6">
+                <!-- Title with Highlighted Words -->
+                <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight">
+                    <span class="text-gradient">Secure</span> Digital<br>
+                    Vehicle <span class="text-gradient">Verification</span>
+                </h1>
+                
+                <!-- Description Cards -->
+                <div class="mt-10 md:mt-16 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="feature-card">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h3>Facial Recognition</h3>
+                        <p>Advanced biometric verification technology</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>Cryptographic Security</h3>
+                        <p>Tamper-proof digital signatures</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <h3>Digital Certificates</h3>
+                        <p>Secure and easily verifiable</p>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="mt-10 md:mt-12 flex flex-col sm:flex-row gap-6">
+                    <a href="/register" class="cta-button primary">
+                        <span class="cta-icon"><i class="fas fa-arrow-right"></i></span>
+                        <span class="cta-text">Get Started</span>
+                    </a>
+                    
+                    <a href="#how-it-works" class="cta-button secondary">
+                        <span class="cta-icon"><i class="fas fa-play-circle"></i></span>
+                        <span class="cta-text">How It Works</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Right Side Showcase (2 cols) -->
+            <div class="lg:col-span-2 relative">
+                <!-- Images Stack -->
+                <div class="images-stack">
+                    <!-- Top Image (QR Code) -->
+                    <div class="stack-image top-image">
+                        <img src="https://images.unsplash.com/photo-1595079676339-1534801ad6cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="QR code verification" class="rounded-xl shadow-xl">
+                        <div class="badge success-badge">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Verified</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Middle Image (Dashboard) -->
+                    <div class="stack-image middle-image">
+                        <img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Vehicle verification dashboard" class="rounded-xl shadow-xl">
+                    </div>
+                    
+                    <!-- Bottom Image (Face Scan) -->
+                    <div class="stack-image bottom-image">
+                        <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Facial verification" class="rounded-xl shadow-xl">
+                        <div class="badge scanning-badge">
+                            <i class="fas fa-sync-alt fa-spin"></i>
+                            <span>Scanning</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Wave Divider -->
+    <div class="wave-divider absolute bottom-0 w-full" style="background-image: url('data:image/svg+xml;utf8,<svg viewBox=\"0 0 960 150\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><path fill=\"%23000000\" d=\"M0 25.9086C277 84.5821 433 65.736 720 25.9086C934.818 -3.9019 1214.06 -5.23669 1442 8.06597C2079 45.2421 2208 63.5007 2560 25.9088V171.91L0 171.91V25.9086Z\"></path></svg></div>
+</section>
+
+<style>
+/* Base Styles */
+.hero-section {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+}
+
+.bg-pattern {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+
+/* Text Gradient */
+.text-gradient {
+    background: linear-gradient(90deg, #ff7f86, #da1a32);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+}
+
+/* Feature Cards */
+.feature-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    border-color: rgba(218, 26, 50, 0.3);
+}
+
+.icon-wrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #a00c30, #da1a32);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.feature-card h3 {
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+/* CTA Buttons */
+.cta-button {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 2rem;
+    border-radius: 100px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: translateX(-100%);
+}
+
+.cta-button:hover::before {
+    transform: translateX(100%);
+    transition: transform 0.8s ease;
+}
+
+.cta-button.primary {
+    background-color: white;
+    color: #da1a32;
+    box-shadow: 0 10px 20px rgba(218, 26, 50, 0.3);
+}
+
+.cta-button.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px rgba(218, 26, 50, 0.4);
+}
+
+.cta-button.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.cta-button.secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+}
+
+.cta-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Images Stack */
+.images-stack {
+    position: relative;
+    height: 450px;
+    width: 100%;
+}
+
+.stack-image {
+    position: absolute;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transition: all 0.5s ease;
+}
+
+.stack-image:hover {
+    transform: translateY(-10px) rotate(0deg) !important;
+    z-index: 10;
+}
+
+.top-image {
+    top: 10%;
+    right: 0;
+    width: 60%;
+    z-index: 3;
+    transform: rotate(5deg);
+}
+
+.middle-image {
+    top: 25%;
+    left: 0;
+    width: 80%;
+    z-index: 2;
+}
+
+.bottom-image {
+    bottom: 10%;
+    right: 10%;
+    width: 55%;
+    z-index: 1;
+    transform: rotate(-8deg);
+}
+
+.badge {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    gap: 0.5rem;
+}
+
+.success-badge {
+    background: rgba(16, 185, 129, 0.9);
+    color: white;
+    top: -10px;
+    right: -10px;
+}
+
+.scanning-badge {
+    background: rgba(59, 130, 246, 0.9);
+    color: white;
+    bottom: -10px;
+    left: -10px;
+}
+
+/* Particles Animation */
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 127, 134, 0.4), rgba(218, 26, 50, 0.6));
+    filter: blur(8px);
+}
+
+.particle-1 {
+    width: 150px;
+    height: 150px;
+    top: 10%;
+    left: 10%;
+    animation: float 15s ease-in-out infinite;
+}
+
+.particle-2 {
+    width: 80px;
+    height: 80px;
+    top: 60%;
+    left: 15%;
+    animation: float 12s ease-in-out infinite 1s;
+}
+
+.particle-3 {
+    width: 120px;
+    height: 120px;
+    top: 30%;
+    right: 8%;
+    animation: float 18s ease-in-out infinite 2s;
+}
+
+.particle-4 {
+    width: 60px;
+    height: 60px;
+    bottom: 20%;
+    right: 25%;
+    animation: float 10s ease-in-out infinite 0.5s;
+}
+
+.particle-5 {
+    width: 90px;
+    height: 90px;
+    bottom: 15%;
+    left: 30%;
+    animation: float 14s ease-in-out infinite 1.5s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) translateX(0);
+    }
+    25% {
+        transform: translateY(-20px) translateX(10px);
+    }
+    50% {
+        transform: translateY(10px) translateX(-15px);
+    }
+    75% {
+        transform: translateY(-15px) translateX(-10px);
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .images-stack {
+        height: 400px;
+        margin: 0 auto;
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .images-stack {
+        height: 350px;
+        margin-top: 2rem;
+    }
+    
+    .top-image {
+        top: 5%;
+        right: 5%;
+    }
+    
+    .bottom-image {
+        bottom: 5%;
+        right: 15%;
+    }
+}
+</style>
+        <!-- Key Benefits -->
+        <section class="py-20 bg-gradient-to-b from-black to-gray-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="inline-block text-base font-semibold text-primary-600 tracking-wide uppercase px-3 py-1 bg-gray-900 rounded-full">Benefits</h2>
+                    <p class="mt-6 text-3xl font-extrabold text-white sm:text-4xl sm:tracking-tight lg:text-5xl">Secure and reliable verification</p>
+                    <p class="max-w-2xl mt-5 mx-auto text-xl text-gray-300">Our system combines multiple security technologies to protect vehicle identity.</p>
+                </div>
+                
+                <div class="mt-16 grid grid-cols-1 gap-12 md:grid-cols-3">
+                    <!-- Benefit 1 -->
+                    <div class="bg-black rounded-2xl shadow-xl overflow-hidden card-hover border border-gray-800">
+                        <div class="p-8">
+                            <div class="w-14 h-14 rounded-full flex items-center justify-center bg-gray-900 mb-6">
+                                <i class="fas fa-user-shield text-primary-600 text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">Identity Protection</h3>
+                            <p class="mt-4 text-gray-300 leading-relaxed">Protect your vehicle's identity with advanced encryption and authentication technology.</p>
+                        </div>
+                        <div class="h-1.5 bg-gradient-to-r from-primary-400 to-primary-600"></div>
+                    </div>
+                    
+                    <!-- Benefit 2 -->
+                    <div class="bg-black rounded-2xl shadow-xl overflow-hidden card-hover border border-gray-800">
+                        <div class="p-8">
+                            <div class="w-14 h-14 rounded-full flex items-center justify-center bg-gray-900 mb-6">
+                                <i class="fas fa-bolt text-primary-600 text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">Quick Verification</h3>
+                            <p class="mt-4 text-gray-300 leading-relaxed">Verify vehicle ownership and details in seconds using our streamlined system.</p>
+                        </div>
+                        <div class="h-1.5 bg-gradient-to-r from-primary-400 to-primary-600"></div>
+                    </div>
+                    
+                    <!-- Benefit 3 -->
+                    <div class="bg-black rounded-2xl shadow-xl overflow-hidden card-hover border border-gray-800">
+                        <div class="p-8">
+                            <div class="w-14 h-14 rounded-full flex items-center justify-center bg-gray-900 mb-6">
+                                <i class="fas fa-lock text-primary-600 text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">Fraud Prevention</h3>
+                            <p class="mt-4 text-gray-300 leading-relaxed">Detect and prevent unauthorized access with multi-layered security measures.</p>
+                        </div>
+                        <div class="h-1.5 bg-gradient-to-r from-primary-400 to-primary-600"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-24 bg-gray-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="inline-block text-base font-semibold text-primary-600 tracking-wide uppercase px-3 py-1 bg-black rounded-full">Features</h2>
+                    <p class="mt-6 text-3xl font-extrabold text-white sm:text-4xl sm:tracking-tight">Comprehensive security solution</p>
+                </div>
+                
+                <div class="mt-20">
+                    <!-- Feature Row 1 -->
+                    <div class="lg:flex lg:items-center lg:space-x-16 mb-32">
+                        <div class="lg:w-1/2">
+                            <h3 class="text-2xl font-bold text-white">Facial Recognition Authentication</h3>
+                            <p class="mt-4 text-lg text-gray-300 leading-relaxed">Our system uses advanced facial recognition technology to verify user identity, adding an extra layer of security to the vehicle verification process.</p>
+                            <ul class="mt-8 space-y-4">
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-800">
+                                            <i class="fas fa-check text-primary-400 text-sm"></i>
+                                        </span>
+                                    </div>
+                                    <p class="ml-3 text-gray-300">Secure biometric verification</p>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-800">
+                                            <i class="fas fa-check text-primary-400 text-sm"></i>
+                                        </span>
+                                    </div>
+                                    <p class="ml-3 text-gray-300">Prevents unauthorized access</p>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-800">
+                                            <i class="fas fa-check text-primary-400 text-sm"></i>
+                                        </span>
+                                    </div>
+                                    <p class="ml-3 text-gray-300">Quick and reliable</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="mt-10 lg:mt-0 lg:w-1/2">
+                            <div class="relative">
+                                <div class="absolute -inset-1 bg-gradient-to-r from-primary-400 to-primary-600 rounded-2xl blur-lg opacity-70"></div>
+                                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Facial recognition" class="relative w-full h-auto rounded-2xl shadow-2xl">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature Row 2 -->
+                    <div class="lg:flex lg:items-center lg:space-x-16 lg:flex-row-reverse">
+                        <div class="lg:w-1/2">
+                            <h3 class="text-2xl font-bold text-white">Digital Certificates & QR Verification</h3>
+                            <p class="mt-4 text-lg text-gray-300 leading-relaxed">Each vehicle is assigned a unique digital certificate and QR code, enabling quick and secure verification of ownership and vehicle details.</p>
+                            <ul class="mt-8 space-y-4">
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-800">
+                                            <i class="fas fa-check text-primary-400 text-sm"></i>
+                                        </span>
+                                    </div>
+                                    <p class="ml-3 text-gray-300">Cryptographically signed certificates</p>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-800">
+                                            <i class="fas fa-check text-primary-400 text-sm"></i>
+                                        </span>
+                                    </div>
+                                    <p class="ml-3 text-gray-300">Tamper-proof QR codes</p>
+                                </li>
+                                <li class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-800">
+                                            <i class="fas fa-check text-primary-400 text-sm"></i>
+                                        </span>
+                                    </div>
+                                    <p class="ml-3 text-gray-300">Instant verification</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="mt-10 lg:mt-0 lg:w-1/2">
+                            <div class="relative">
+                                <div class="absolute -inset-1 bg-gradient-to-r from-primary-400 to-primary-600 rounded-2xl blur-lg opacity-70"></div>
+                                <img src="https://images.unsplash.com/photo-1597733336794-12d05021d510?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="QR code verification" class="relative w-full h-auto rounded-2xl shadow-2xl">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works (Revised) -->
+<section id="how-it-works" class="py-24 bg-dark-900 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="inline-block text-base font-semibold text-primary-500 tracking-wide uppercase px-3 py-1 bg-dark-850 border border-primary-500 rounded-full">Process</h2>
+            <p class="mt-6 text-3xl font-extrabold text-white sm:text-4xl sm:tracking-tight">How it works</p>
+            <p class="max-w-2xl mt-5 mx-auto text-xl text-gray-400">Simple steps to secure your vehicle identity</p>
+        </div>
+        
+        <!-- New Interactive Hexagon Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+            <!-- Step 1 -->
+            <div class="group">
+                <div class="relative">
+                    <!-- Hexagon Background -->
+                    <div class="absolute inset-0 -z-10 bg-dark-850 rounded-2xl border border-gray-800 transform transition-transform duration-500 group-hover:scale-105"></div>
+                    <!-- Glow Effect -->
+                    <div class="absolute -inset-1 -z-20 bg-gradient-to-r from-primary-500 to-primary-600 opacity-0 blur-xl rounded-2xl transition-opacity duration-500 group-hover:opacity-30"></div>
+                    
+                    <div class="p-8">
+                        <!-- Number Badge -->
+                        <div class="w-16 h-16 flex items-center justify-center bg-primary-500 text-white text-2xl font-bold rounded-full mb-6 shadow-lg glow-effect">1</div>
+                        
+                        <h3 class="text-2xl font-bold text-white mb-4">Register with secure authentication</h3>
+                        <p class="text-gray-400 leading-relaxed mb-6">Create an account with facial recognition for enhanced security.</p>
+                        
+                        <!-- Feature List -->
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-500/20">
+                                        <i class="fas fa-check text-primary-500 text-sm"></i>
+                                    </span>
+                                </div>
+                                <p class="ml-3 text-gray-300">Quick registration process</p>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-500/20">
+                                        <i class="fas fa-check text-primary-500 text-sm"></i>
+                                    </span>
+                                </div>
+                                <p class="ml-3 text-gray-300">Biometric security layer</p>
+                            </li>
+                        </ul>
+                        
+                        <!-- Image with gradient overlay -->
+                        <div class="relative h-64 rounded-xl overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-t from-dark-850 via-transparent to-transparent z-10"></div>
+                            <img src="https://images.unsplash.com/photo-1565728744382-61accd4aa148?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                                alt="Registration" 
+                                class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="group mt-12 lg:mt-24">
+                <div class="relative">
+                    <!-- Hexagon Background -->
+                    <div class="absolute inset-0 -z-10 bg-dark-850 rounded-2xl border border-gray-800 transform transition-transform duration-500 group-hover:scale-105"></div>
+                    <!-- Glow Effect -->
+                    <div class="absolute -inset-1 -z-20 bg-gradient-to-r from-primary-500 to-primary-600 opacity-0 blur-xl rounded-2xl transition-opacity duration-500 group-hover:opacity-30"></div>
+                    
+                    <div class="p-8">
+                        <!-- Number Badge -->
+                        <div class="w-16 h-16 flex items-center justify-center bg-primary-500 text-white text-2xl font-bold rounded-full mb-6 shadow-lg glow-effect">2</div>
+                        
+                        <h3 class="text-2xl font-bold text-white mb-4">Add your vehicle details</h3>
+                        <p class="text-gray-400 leading-relaxed mb-6">Enter vehicle information to generate a secure digital certificate and QR code.</p>
+                        
+                        <!-- Feature List -->
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-500/20">
+                                        <i class="fas fa-check text-primary-500 text-sm"></i>
+                                    </span>
+                                </div>
+                                <p class="ml-3 text-gray-300">Multiple vehicle support</p>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-500/20">
+                                        <i class="fas fa-check text-primary-500 text-sm"></i>
+                                    </span>
+                                </div>
+                                <p class="ml-3 text-gray-300">Tamper-proof certificates</p>
+                            </li>
+                        </ul>
+                        
+                        <!-- Image with gradient overlay -->
+                        <div class="relative h-64 rounded-xl overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-t from-dark-850 via-transparent to-transparent z-10"></div>
+                            <img src="https://images.unsplash.com/photo-1525011268546-4733f14e14a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                                alt="Vehicle registration" 
+                                class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="group mt-24 lg:mt-48">
+                <div class="relative">
+                    <!-- Hexagon Background -->
+                    <div class="absolute inset-0 -z-10 bg-dark-850 rounded-2xl border border-gray-800 transform transition-transform duration-500 group-hover:scale-105"></div>
+                    <!-- Glow Effect -->
+                    <div class="absolute -inset-1 -z-20 bg-gradient-to-r from-primary-500 to-primary-600 opacity-0 blur-xl rounded-2xl transition-opacity duration-500 group-hover:opacity-30"></div>
+                    
+                    <div class="p-8">
+                        <!-- Number Badge -->
+                        <div class="w-16 h-16 flex items-center justify-center bg-primary-500 text-white text-2xl font-bold rounded-full mb-6 shadow-lg glow-effect">3</div>
+                        
+                        <h3 class="text-2xl font-bold text-white mb-4">Verify and share</h3>
+                        <p class="text-gray-400 leading-relaxed mb-6">Use the QR code for quick verification whenever needed.</p>
+                        
+                        <!-- Feature List -->
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-500/20">
+                                        <i class="fas fa-check text-primary-500 text-sm"></i>
+                                    </span>
+                                </div>
+                                <p class="ml-3 text-gray-300">Instant verification</p>
+                            </li>
+                            <li class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-500/20">
+                                        <i class="fas fa-check text-primary-500 text-sm"></i>
+                                    </span>
+                                </div>
+                                <p class="ml-3 text-gray-300">Digital sharing options</p>
+                            </li>
+                        </ul>
+                        
+                        <!-- Image with gradient overlay -->
+                        <div class="relative h-64 rounded-xl overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-t from-dark-850 via-transparent to-transparent z-10"></div>
+                            <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" 
+                                alt="Verification" 
+                                class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Connecting Lines (Desktop Only) -->
+        <div class="hidden lg:block">
+            <!-- Connector 1-2 -->
+            <div class="absolute top-1/2 left-1/3 w-1/3 h-1 bg-gradient-to-r from-primary-400 to-primary-600 transform -translate-y-32"></div>
+            <!-- Connector 2-3 -->
+            <div class="absolute top-1/2 left-2/3 w-1/3 h-1 bg-gradient-to-r from-primary-400 to-primary-600 transform translate-y-8"></div>
+        </div>
+        
+        <!-- Call to Action -->
+        <div class="mt-20 text-center">
+            <a href="/register" class="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-full text-white bg-primary-500 hover:bg-primary-600 md:text-lg md:px-10 transition-all shadow-lg glow-effect group">
+                Start your verification journey
+                <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+    @media (min-width: 1024px) {
+        #how-it-works .group:nth-child(2) {
+            transform: translateY(40px);
+        }
+        #how-it-works .group:nth-child(3) {
+            transform: translateY(80px);
+        }
+    }
+</style>
+        <!-- CTA Section -->
+        <section class="py-16 relative overflow-hidden">
+            <div class="absolute inset-0 hero-gradient opacity-90"></div>
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 lg:flex lg:items-center lg:justify-between">
+                <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                    <span class="block">Ready to secure your vehicle?</span>
+                    <span class="block text-red-200 mt-2">Join our platform today.</span>
+                </h2>
+                <div class="mt-8 flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 lg:mt-0 lg:flex-shrink-0">
+                    <a href="/register" class="inline-flex items-center justify-center px-6 py-4 border border-transparent text-base font-medium rounded-full shadow-lg text-primary-600 bg-white hover:bg-gray-50 transform hover:scale-105 transition duration-200">
+                        Get started
+                    </a>
+                    <a href="/login" class="inline-flex items-center justify-center px-6 py-4 border border-white text-base font-medium rounded-full text-white hover:bg-white/10 transform hover:scale-105 transition duration-200">
+                        Sign in
+                    </a>
+                </div>
+            </div>
+        </section>
+
+         <!-- Footer -->
+        <footer class="bg-gray-900">
+            <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                    <div class="md:col-span-2">
+                        <div class="flex items-center mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            <span class="ml-2 text-2xl font-bold text-white">VehicleVerify</span>
+                        </div>
+                        <p class="text-gray-300 max-w-md leading-relaxed">
+                            Secure vehicle verification system combining facial recognition, digital certificates, and cryptographic QR codes to protect your vehicle's identity.
+                        </p>
+                        <div class="mt-8 flex space-x-4">
+                            <a href="#" class="text-gray-400 hover:text-white transition">
+                                <i class="fab fa-twitter text-xl"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-white transition">
+                                <i class="fab fa-facebook text-xl"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-white transition">
+                                <i class="fab fa-instagram text-xl"></i>
+                            </a>
+                            <a href="#" class="text-gray-400 hover:text-white transition">
+                                <i class="fab fa-linkedin text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-primary-400 tracking-wider uppercase mb-4">Navigation</h3>
+                        <ul class="space-y-3">
+                            <li><a href="#features" class="text-base text-gray-300 hover:text-white transition">Features</a></li>
+                            <li><a href="#how-it-works" class="text-base text-gray-300 hover:text-white transition">How It Works</a></li>
+                            <li><a href="/register" class="text-base text-gray-300 hover:text-white transition">Register</a></li>
+                            <li><a href="/login" class="text-base text-gray-300 hover:text-white transition">Login</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-primary-400 tracking-wider uppercase mb-4">Legal</h3>
+                        <ul class="space-y-3">
+                            <li><a href="#" class="text-base text-gray-300 hover:text-white transition">Privacy Policy</a></li>
+                            <li><a href="#" class="text-base text-gray-300 hover:text-white transition">Terms of Service</a></li>
+                            <li><a href="#" class="text-base text-gray-300 hover:text-white transition">Cookie Policy</a></li>
+                            <li><a href="#" class="text-base text-gray-300 hover:text-white transition">Support</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-12 pt-8 border-t border-gray-800">
+                    <p class="text-center text-gray-400">&copy; 2025 VehicleVerify. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+        {% endblock %}
+    </div>
+
+    {% block scripts %}
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                }
+            });
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('nav');
+            if (window.scrollY > 10) {
+                navbar.classList.add('shadow-md');
+                navbar.classList.remove('shadow-sm');
+            } else {
+                navbar.classList.remove('shadow-md');
+                navbar.classList.add('shadow-sm');
+            }
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>

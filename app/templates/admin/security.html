@@ -1,0 +1,1003 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
+        Security Dashboard
+    </h1>
+    <p class="text-gray-400 mt-2">Real-time security metrics and threat detection</p>
+</div>
+
+
+<!-- Anomaly Alert Banner with modern styling -->
+<div id="anomalyAlert" class="{% if registration_anomalies.has_anomaly or verification_stats.failed_attempts > 0 or ml_anomalies.has_anomaly %}block{% else %}hidden{% endif %} relative overflow-hidden bg-black border border-red-500 rounded-xl p-6 mb-8">
+    <!-- Animated warning pattern in background -->
+    <div class="absolute inset-0 bg-red-900 bg-opacity-5 flex items-center justify-center overflow-hidden">
+        <div class="w-full h-full" style="background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(220, 38, 38, 0.1) 20px, rgba(220, 38, 38, 0.1) 40px);"></div>
+    </div>
+    
+    <div class="relative flex">
+        <div class="flex-shrink-0 bg-red-900 bg-opacity-30 rounded-lg p-3">
+            <svg class="h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="ml-4">
+            <p class="text-lg font-semibold text-white flex items-center">
+                <span class="mr-2">Security Alert</span>
+                <span class="inline-flex h-2 w-2 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+            </p>
+            <p class="text-gray-400 mt-1">Potential security anomalies detected in the system</p>
+            <ul id="anomalyList" class="mt-4 space-y-2 text-sm text-gray-300">
+                {% if registration_anomalies.has_anomaly %}
+                    {% if registration_anomalies.user_anomaly.is_anomaly %}
+                    <li class="flex items-center">
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                        Unusual spike in user registrations detected: {{ registration_anomalies.user_anomaly.recent_count }} new users (threshold: {{ registration_anomalies.user_anomaly.threshold|round|int }})
+                    </li>
+                    {% endif %}
+                    
+                    {% if registration_anomalies.vehicle_anomaly.is_anomaly %}
+                    <li class="flex items-center">
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                        Unusual spike in vehicle registrations detected: {{ registration_anomalies.vehicle_anomaly.recent_count }} new vehicles (threshold: {{ registration_anomalies.vehicle_anomaly.threshold|round|int }})
+                    </li>
+                    {% endif %}
+                {% endif %}
+                
+                {% if verification_stats.failed_attempts > 0 %}
+                <li class="flex items-center">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                    {{ verification_stats.failed_attempts }} failed verification attempts detected
+                </li>
+                {% endif %}
+                
+                {% if ml_anomalies and ml_anomalies.has_anomaly %}
+                <li class="flex items-center">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                    AI detected unusual patterns in system usage
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- AI Badge with modern styling -->
+{% if is_ai_powered %}
+<div class="mb-6">
+    <div class="inline-flex items-center rounded-xl bg-gradient-to-r from-black to-gray-900 border border-gray-800 shadow-md px-4 py-2">
+        <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-900 bg-opacity-30 mr-3">
+            <svg class="h-4 w-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+        </div>
+        <div>
+            <div class="text-sm font-medium text-white">AI-Powered Security</div>
+            <div class="text-xs text-gray-400">Advanced threat detection enabled</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Stats Cards - Modern glass morphism design -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- User Registrations Card -->
+    <div class="relative group overflow-hidden bg-opacity-30">
+        <!-- Card glow effect -->
+        <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-xl blur-sm opacity-25 group-hover:opacity-40 transition duration-300"></div>
+        
+        <!-- Card content -->
+        <div class="relative bg-black p-6 rounded-xl border border-gray-800 h-full flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-400 text-sm font-medium">User Registrations</h3>
+                <div id="userAnomalyIcon" class="w-10 h-10 bg-red-900 bg-opacity-20 rounded-xl flex items-center justify-center">
+                    <svg class="h-5 w-5 {% if registration_anomalies.user_anomaly.is_anomaly %}text-red-500{% else %}text-gray-400{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="mb-2">
+                <div id="userCount" class="text-3xl font-bold text-white">{{ registration_anomalies.user_anomaly.recent_count }}</div>
+                <div id="userStatus" class="{% if registration_anomalies.user_anomaly.is_anomaly %}text-red-500{% else %}text-gray-400{% endif %} text-sm flex items-center">
+                    <span>1-hour total</span>
+                    {% if registration_anomalies.user_anomaly.is_anomaly %}
+                    <span id="userAnomalyBadge" class="ml-2 text-xs text-red-500 flex items-center">
+                        <span class="inline-flex h-2 w-2 relative mr-1">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
+                        Anomaly
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Progress indicator -->
+            <div class="mt-2 pt-2 border-t border-gray-800">
+                <div class="flex justify-between items-center text-xs text-gray-500 mb-1">
+                    <span>Baseline: {{ registration_anomalies.user_anomaly.baseline_mean|round(1) }} per day</span>
+                    <span>{{ (registration_anomalies.user_anomaly.recent_count / registration_anomalies.user_anomaly.baseline_mean * 100)|round|int }}%</span>
+                </div>
+                <div class="h-1 w-full bg-gray-800 rounded-full overflow-hidden">
+                    <div class="h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-full" style="width: {{ (registration_anomalies.user_anomaly.recent_count / (registration_anomalies.user_anomaly.baseline_mean * 2) * 100)|round|int }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehicle Registrations Card -->
+    <div class="relative group overflow-hidden">
+        <!-- Card glow effect -->
+        <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-xl blur-sm opacity-25 group-hover:opacity-40 transition duration-300"></div>
+        
+        <!-- Card content -->
+        <div class="relative bg-black p-6 rounded-xl border border-gray-800 h-full flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-400 text-sm font-medium">Vehicle Registrations</h3>
+                <div id="vehicleAnomalyIcon" class="w-10 h-10 bg-red-900 bg-opacity-20 rounded-xl flex items-center justify-center">
+                    <svg class="h-5 w-5 {% if registration_anomalies.vehicle_anomaly.is_anomaly %}text-red-500{% else %}text-gray-400{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="mb-2">
+                <div id="vehicleCount" class="text-3xl font-bold text-white">{{ registration_anomalies.vehicle_anomaly.recent_count }}</div>
+                <div id="vehicleStatus" class="{% if registration_anomalies.vehicle_anomaly.is_anomaly %}text-red-500{% else %}text-gray-400{% endif %} text-sm flex items-center">
+                    <span>1-hour total</span>
+                    {% if registration_anomalies.vehicle_anomaly.is_anomaly %}
+                    <span id="vehicleAnomalyBadge" class="ml-2 text-xs text-red-500 flex items-center">
+                        <span class="inline-flex h-2 w-2 relative mr-1">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
+                        Anomaly
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Progress indicator -->
+            <div class="mt-2 pt-2 border-t border-gray-800">
+                <div class="flex justify-between items-center text-xs text-gray-500 mb-1">
+                    <span>Baseline: {{ registration_anomalies.vehicle_anomaly.baseline_mean|round(1) }} per day</span>
+                    <span>{{ (registration_anomalies.vehicle_anomaly.recent_count / registration_anomalies.vehicle_anomaly.baseline_mean * 100)|round|int }}%</span>
+                </div>
+                <div class="h-1 w-full bg-gray-800 rounded-full overflow-hidden">
+                    <div class="h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-full" style="width: {{ (registration_anomalies.vehicle_anomaly.recent_count / (registration_anomalies.vehicle_anomaly.baseline_mean * 2) * 100)|round|int }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Verification Rate Card -->
+    <div class="relative group overflow-hidden">
+        <!-- Card glow effect -->
+        <div class="absolute -inset-0.5 bg-gradient-to-r {% if verification_stats.success_rate < 70 %}from-red-500 to-red-700{% else %}from-green-500 to-green-700{% endif %} rounded-xl blur-sm opacity-25 group-hover:opacity-40 transition duration-300"></div>
+        
+        <!-- Card content -->
+        <div class="relative bg-black p-6 rounded-xl border border-gray-800 h-full flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-400 text-sm font-medium">Verification Rate</h3>
+                <div class="w-10 h-10 bg-opacity-20 rounded-xl flex items-center justify-center {% if verification_stats.success_rate < 70 %}bg-red-900{% else %}bg-green-900{% endif %}">
+                    <svg class="h-5 w-5 {% if verification_stats.success_rate < 70 %}text-red-500{% else %}text-green-500{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="mb-2">
+                <div id="successRate" class="text-3xl font-bold text-white">{{ verification_stats.success_rate|round|int }}%</div>
+                <div class="{% if verification_stats.success_rate < 70 %}text-red-500{% else %}text-green-500{% endif %} text-sm flex items-center">
+                    <span>Success rate</span>
+                    {% if verification_stats.success_rate < 70 %}
+                    <span id="lowRateBadge" class="ml-2 text-xs text-red-500 flex items-center">
+                        <span class="inline-flex h-2 w-2 relative mr-1">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
+                        Critical
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Radial progress indicator -->
+            <div class="mt-2 pt-2 border-t border-gray-800">
+                <div class="flex items-center justify-between">
+                    <div class="relative w-16 h-16">
+                        <!-- SVG for donut chart -->
+                        <svg class="w-full h-full" viewBox="0 0 36 36">
+                            <path class="stroke-current text-gray-800" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="stroke-current {% if verification_stats.success_rate < 70 %}text-red-500{% else %}text-green-500{% endif %}" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="{{ verification_stats.success_rate }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <text x="18" y="20.5" class="text-xs font-medium fill-current text-white text-center" dominant-baseline="middle" text-anchor="middle">{{ verification_stats.success_rate|round|int }}%</text>
+                        </svg>
+                    </div>
+                    <div class="text-xs text-gray-400">
+                        {{ verification_stats.successful_attempts }} successful<br>{{ verification_stats.total_attempts }} total
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Performance Card -->
+    <div class="relative group overflow-hidden">
+        <!-- Card glow effect -->
+        <div class="absolute -inset-0.5 bg-gradient-to-r {% if request_stats.avg_response_time > 200 %}from-yellow-500 to-yellow-700{% else %}from-green-500 to-green-700{% endif %} rounded-xl blur-sm opacity-25 group-hover:opacity-40 transition duration-300"></div>
+        
+        <!-- Card content -->
+        <div class="relative bg-black p-6 rounded-xl border border-gray-800 h-full flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-gray-400 text-sm font-medium">API Performance</h3>
+                <div class="w-10 h-10 bg-opacity-20 rounded-xl flex items-center justify-center {% if request_stats.avg_response_time > 200 %}bg-yellow-900{% else %}bg-green-900{% endif %}">
+                    <svg class="h-5 w-5 {% if request_stats.avg_response_time > 200 %}text-yellow-500{% else %}text-green-500{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="mb-2">
+                <div id="avgResponseTime" class="text-3xl font-bold text-white">{{ request_stats.avg_response_time|round|int }}ms</div>
+                <div class="{% if request_stats.avg_response_time > 200 %}text-yellow-500{% else %}text-green-500{% endif %} text-sm">
+                    Average response time
+                </div>
+            </div>
+            
+            <!-- Response time miniature chart -->
+            <div class="mt-2 pt-2 border-t border-gray-800">
+                <div class="text-xs text-gray-500 flex justify-between mb-1">
+                    <span>{{ request_stats.anomalous_requests }} anomalous</span>
+                    <span>{{ request_stats.total_requests }} total</span>
+                </div>
+                <!-- Response time chart -->
+                <div class="w-full flex space-x-0.5 h-6 items-end">
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 20%"></div>
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 60%"></div>
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 40%"></div>
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 80%"></div>
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 30%"></div>
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 40%"></div>
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 20%"></div>
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 60%"></div>
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 90%"></div>
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 30%"></div>
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 20%"></div>
+                    <div class="w-1/12 bg-red-500 rounded-sm" style="height: 50%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ML-based Anomaly Detection Section - Modern redesign -->
+{% if is_ai_powered and ml_anomalies %}
+<div class="relative mb-8 group overflow-hidden">
+    <!-- Background glow effect -->
+    <div class="absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-purple-700 rounded-xl blur-sm opacity-25 group-hover:opacity-40 transition duration-300"></div>
+    
+    <!-- Content -->
+    <div class="relative bg-black rounded-xl border border-gray-800 p-6">
+        <div class="flex items-center mb-6">
+            <div class="p-2 bg-purple-900 bg-opacity-30 rounded-lg mr-3">
+                <svg class="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-xl font-semibold text-white">AI-Powered Anomaly Detection</h2>
+                <p class="text-gray-400 text-sm mt-1">Machine learning analysis of system behavior patterns</p>
+            </div>
+            <div class="ml-auto">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-900 bg-opacity-40 text-purple-400">
+                    Machine Learning
+                </span>
+            </div>
+        </div>
+        
+        {% if ml_anomalies.total_anomalies_found > 0 %}
+        <div class="relative overflow-hidden bg-black rounded-xl border border-yellow-600 p-6 mb-4">
+            <!-- Warning pattern in background -->
+            <div class="absolute inset-0 opacity-10">
+                <div class="w-full h-full" style="background-image: repeating-linear-gradient(-45deg, transparent, transparent 20px, rgba(245, 158, 11, 0.1) 20px, rgba(245, 158, 11, 0.1) 40px);"></div>
+            </div>
+            
+            <div class="relative flex">
+                <div class="flex-shrink-0 bg-yellow-900 bg-opacity-30 p-2 rounded-lg">
+                    <svg class="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3 flex-1">
+                    <p class="text-sm font-medium text-white">
+                        The AI has identified {{ ml_anomalies.total_anomalies_found }} anomalies in system usage
+                    </p>
+                    
+                    {% if ml_anomalies.anomaly_details and ml_anomalies.anomaly_details|length > 0 %}
+                    <div class="mt-4 space-y-4">
+                        {% for anomaly in ml_anomalies.anomaly_details %}
+                        <div class="bg-gray-900 bg-opacity-60 rounded-lg p-3">
+                            <div class="flex items-center mb-2">
+                                <div class="bg-yellow-900 bg-opacity-30 rounded-full w-6 h-6 flex items-center justify-center mr-2">
+                                    <span class="text-xs font-medium text-yellow-500">{{ loop.index }}</span>
+                                </div>
+                                <div class="text-sm font-medium text-white">Anomaly on {{ anomaly.date }}</div>
+                            </div>
+                            
+                            <div class="ml-8 space-y-2">
+                                {% for metric in anomaly.unusual_metrics %}
+                                <div class="flex items-center justify-between">
+                                    <div class="text-xs text-gray-400">{{ metric.metric|replace('_', ' ')|title }}</div>
+                                    <div class="text-xs">
+                                        <span class="text-white">{{ metric.value }}</span>
+                                        <span class="text-gray-500 ml-1">(normal: {{ metric.normal_range }})</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-black rounded-xl border border-green-600 p-6 mb-4">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-900 bg-opacity-30 p-2 rounded-lg">
+                    <svg class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-white">
+                        <span class="text-green-500 font-semibold">All Clear:</span> No unusual patterns detected by our AI-powered anomaly detection system.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- AI Model Information in a sleek card -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div class="bg-gray-900 bg-opacity-50 rounded-xl p-4 border border-gray-800">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 bg-purple-900 bg-opacity-30 rounded-lg flex items-center justify-center mr-2">
+                       <svg class="h-4 w-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                       </svg>
+                   </div>
+                   <h3 class="text-white text-sm font-medium">Algorithm</h3>
+               </div>
+               <p class="text-gray-400 text-sm pl-10">{{ ml_anomalies.model_info.algorithm }}</p>
+           </div>
+           
+           <div class="bg-gray-900 bg-opacity-50 rounded-xl p-4 border border-gray-800">
+               <div class="flex items-center mb-2">
+                   <div class="w-8 h-8 bg-purple-900 bg-opacity-30 rounded-lg flex items-center justify-center mr-2">
+                       <svg class="h-4 w-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                       </svg>
+                   </div>
+                   <h3 class="text-white text-sm font-medium">Days Analyzed</h3>
+               </div>
+               <p class="text-gray-400 text-sm pl-10">{{ ml_anomalies.model_info.days_analyzed }}</p>
+           </div>
+           
+           <div class="bg-gray-900 bg-opacity-50 rounded-xl p-4 border border-gray-800">
+               <div class="flex items-center mb-2">
+                   <div class="w-8 h-8 bg-purple-900 bg-opacity-30 rounded-lg flex items-center justify-center mr-2">
+                       <svg class="h-4 w-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                       </svg>
+                   </div>
+                   <h3 class="text-white text-sm font-medium">Total Anomalies</h3>
+               </div>
+               <p class="text-gray-400 text-sm pl-10">{{ ml_anomalies.total_anomalies_found }}</p>
+           </div>
+       </div>
+       
+       <div class="mt-4 text-sm text-gray-400 border-t border-gray-800 pt-4">
+           <h3 class="text-white font-medium mb-2 flex items-center">
+               <svg class="h-4 w-4 mr-2 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+               </svg>
+               How it works
+           </h3>
+           <p>
+               Our machine learning model analyzes patterns across multiple security metrics
+               simultaneously, including user registrations, vehicle registrations, verification rates, and system activity.
+               This enables it to detect complex anomalies that might not be apparent when looking at individual metrics.
+           </p>
+       </div>
+   </div>
+</div>
+{% endif %}
+
+<!-- Recent Activity Section with modern design -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+   <!-- Recent Failed Verifications -->
+   <div class="relative group overflow-hidden">
+       <!-- Background glow effect -->
+       <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-xl blur-sm opacity-25 group-hover:opacity-40 transition duration-300"></div>
+       
+       <!-- Content -->
+       <div class="relative bg-black rounded-xl border border-gray-800 p-6">
+           <div class="flex items-center justify-between mb-6">
+               <div class="flex items-center">
+                   <div class="p-2 bg-red-900 bg-opacity-30 rounded-lg mr-3">
+                       <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                       </svg>
+                   </div>
+                   <h2 class="text-xl font-semibold text-white">Failed Verifications</h2>
+               </div>
+               <a href="{{ url_for('admin.verification_attempts', success='failure') }}" class="text-sm text-red-500 hover:text-red-400 transition-all duration-200 flex items-center">
+                   View All
+                   <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                   </svg>
+               </a>
+           </div>
+           
+           <div id="failedVerificationsContainer" class="space-y-3">
+               {% if recent_failures %}
+                   {% for attempt in recent_failures %}
+                   <div class="flex items-center justify-between p-4 bg-gray-900 bg-opacity-60 rounded-lg hover:bg-opacity-80 transition-all">
+                       <div class="flex items-center space-x-3">
+                           <div class="flex-shrink-0">
+                               {% if attempt.verification_type == 'face' %}
+                               <div class="w-10 h-10 rounded-lg bg-red-900 bg-opacity-30 flex items-center justify-center">
+                                   <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                   </svg>
+                               </div>
+                               {% elif attempt.verification_type == 'qr_code' %}
+                               <div class="w-10 h-10 rounded-lg bg-red-900 bg-opacity-30 flex items-center justify-center">
+                                   <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                   </svg>
+                               </div>
+                               {% elif attempt.verification_type == 'certificate' %}
+                               <div class="w-10 h-10 rounded-lg bg-red-900 bg-opacity-30 flex items-center justify-center">
+                                   <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                                   </svg>
+                               </div>
+                               {% else %}
+                               <div class="w-10 h-10 rounded-lg bg-red-900 bg-opacity-30 flex items-center justify-center">
+                                   <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                   </svg>
+                               </div>
+                               {% endif %}
+                           </div>
+                           <div>
+                               <div class="font-medium text-white">{{ attempt.verification_type|capitalize }} Verification</div>
+                               <div class="text-sm text-gray-400">{{ attempt.failure_reason or 'Unknown error' }}</div>
+                           </div>
+                       </div>
+                       <div class="text-xs text-gray-500">
+                           {{ attempt.created_at.strftime('%b %d, %H:%M') }}
+                       </div>
+                   </div>
+                   {% endfor %}
+               {% else %}
+                   <div id="noFailuresMessage" class="flex flex-col items-center justify-center py-12 text-gray-500">
+                       <div class="w-16 h-16 bg-red-900 bg-opacity-10 rounded-full flex items-center justify-center mb-4">
+                           <svg class="h-8 w-8 text-red-500 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                           </svg>
+                       </div>
+                       <p class="text-gray-400">No failed verification attempts found</p>
+                   </div>
+               {% endif %}
+           </div>
+       </div>
+   </div>
+
+   <!-- Recent Anomalous Requests -->
+   <div class="relative group overflow-hidden">
+       <!-- Background glow effect -->
+       <div class="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 to-yellow-700 rounded-xl blur-sm opacity-25 group-hover:opacity-40 transition duration-300"></div>
+       
+       <!-- Content -->
+       <div class="relative bg-black rounded-xl border border-gray-800 p-6">
+           <div class="flex items-center justify-between mb-6">
+               <div class="flex items-center">
+                   <div class="p-2 bg-yellow-900 bg-opacity-30 rounded-lg mr-3">
+                       <svg class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                       </svg>
+                   </div>
+                   <h2 class="text-xl font-semibold text-white">Anomalous Requests</h2>
+               </div>
+               <a href="{{ url_for('admin.request_logs', anomaly='yes') }}" class="text-sm text-yellow-500 hover:text-yellow-400 transition-all duration-200 flex items-center">
+                   View All
+                   <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                   </svg>
+               </a>
+           </div>
+           
+           <div id="anomalousRequestsContainer" class="space-y-3">
+               {% if recent_anomalies %}
+                   {% for log in recent_anomalies %}
+                   <div class="flex items-center justify-between p-4 bg-gray-900 bg-opacity-60 rounded-lg hover:bg-opacity-80 transition-all">
+                       <div class="flex items-center space-x-3">
+                           <div class="flex-shrink-0">
+                               <div class="w-10 h-10 rounded-lg bg-yellow-900 bg-opacity-30 flex items-center justify-center">
+                                   <svg class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                   </svg>
+                               </div>
+                           </div>
+                           <div>
+                               <div class="font-medium text-white">{{ log.method }} {{ log.endpoint }}</div>
+                               <div class="text-sm text-gray-400">{{ log.anomaly_details or 'Suspicious activity' }}</div>
+                           </div>
+                       </div>
+                       <div class="flex flex-col items-end">
+                           <div class="text-xs text-gray-500">
+                               {{ log.created_at.strftime('%b %d, %H:%M') }}
+                           </div>
+                           <div class="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded-full mt-1">
+                               {{ log.ip_address }}
+                           </div>
+                       </div>
+                   </div>
+                   {% endfor %}
+               {% else %}
+                   <div id="noAnomaliesMessage" class="flex flex-col items-center justify-center py-12 text-gray-500">
+                       <div class="w-16 h-16 bg-yellow-900 bg-opacity-10 rounded-full flex items-center justify-center mb-4">
+                           <svg class="h-8 w-8 text-yellow-500 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                           </svg>
+                       </div>
+                       <p class="text-gray-400">No anomalous requests found</p>
+                   </div>
+               {% endif %}
+           </div>
+       </div>
+   </div>
+</div>
+
+<!-- Toast notification container -->
+<div id="toast-container" class="fixed top-4 right-4 z-50"></div>
+
+<!-- Modern toast notifications -->
+<style>
+.toast {
+   padding: 12px 20px;
+   border-radius: 8px;
+   margin-bottom: 10px;
+   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+   transform: translateY(-100%);
+   opacity: 0;
+   transition: transform 0.3s ease, opacity 0.3s ease;
+   display: flex;
+   align-items: center;
+   border-left: 4px solid transparent;
+}
+
+.toast.success {
+   background-color: rgba(0, 0, 0, 0.9);
+   color: white;
+   border-left-color: #10B981;
+}
+
+.toast.error {
+   background-color: rgba(0, 0, 0, 0.9);
+   color: white;
+   border-left-color: #EF4444;
+}
+
+.toast.show {
+   transform: translateY(0);
+   opacity: 1;
+}
+
+.toast::before {
+   content: '';
+   width: 24px;
+   height: 24px;
+   margin-right: 12px;
+   background-size: contain;
+   background-repeat: no-repeat;
+   background-position: center;
+}
+
+.toast.success::before {
+   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2310B981'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.toast.error::before {
+   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23EF4444'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12'%3E%3C/path%3E%3C/svg%3E");
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+   // Auto-refresh dashboard every 60 seconds
+   setInterval(function() {
+       autoRefreshDashboard();
+   }, 60000);
+   
+   // Function to automatically refresh dashboard data
+   function autoRefreshDashboard() {
+       // Add timestamp to prevent browser caching
+       const timestamp = new Date().getTime();
+       
+       // Fetch data from API with cache busting
+       fetch(`/admin/api/security/anomalies?_=${timestamp}`, {
+           method: 'GET',
+           headers: {
+               'Cache-Control': 'no-cache, no-store, must-revalidate',
+               'Pragma': 'no-cache',
+               'Expires': '0'
+           }
+       })
+       .then(response => {
+           if (!response.ok) {
+               throw new Error('Network response was not ok');
+           }
+           return response.json();
+       })
+       .then(data => {
+           updateDashboard(data);
+       })
+       .catch(error => {
+           console.error('Error fetching data:', error);
+       });
+   }
+   
+   // Function to update dashboard with new data
+   function updateDashboard(data) {
+       // Update user registrations
+       if (data.registration_anomalies && data.registration_anomalies.user_anomaly) {
+           const userAnomaly = data.registration_anomalies.user_anomaly;
+           
+           // Update count
+           const userCount = document.getElementById('userCount');
+           if (userCount) {
+               userCount.textContent = userAnomaly.today_count !== undefined ? 
+                   userAnomaly.today_count : userAnomaly.recent_count;
+           }
+           
+           // Update anomaly status
+           const isUserAnomaly = userAnomaly.is_anomaly;
+           const userAnomalyIcon = document.getElementById('userAnomalyIcon');
+           const userStatus = document.getElementById('userStatus');
+           const userAnomalyBadge = document.getElementById('userAnomalyBadge');
+           
+           if (userAnomalyIcon && userAnomalyIcon.querySelector('svg')) {
+               userAnomalyIcon.querySelector('svg').className = `h-5 w-5 ${isUserAnomaly ? 'text-red-500' : 'text-gray-400'}`;
+           }
+           
+           if (userStatus) {
+               userStatus.className = `${isUserAnomaly ? 'text-red-500' : 'text-gray-400'} text-sm flex items-center`;
+           }
+           
+           if (userAnomalyBadge) {
+               if (isUserAnomaly) {
+                   userAnomalyBadge.classList.remove('hidden');
+               } else {
+                   userAnomalyBadge.classList.add('hidden');
+               }
+           }
+       }
+       
+       // Update vehicle registrations
+       if (data.registration_anomalies && data.registration_anomalies.vehicle_anomaly) {
+           const vehicleAnomaly = data.registration_anomalies.vehicle_anomaly;
+           
+           // Update count
+           const vehicleCount = document.getElementById('vehicleCount');
+           if (vehicleCount) {
+               vehicleCount.textContent = vehicleAnomaly.today_count !== undefined ? 
+                   vehicleAnomaly.today_count : vehicleAnomaly.recent_count;
+           }
+           
+           // Update anomaly status
+           const isVehicleAnomaly = vehicleAnomaly.is_anomaly;
+           const vehicleAnomalyIcon = document.getElementById('vehicleAnomalyIcon');
+           const vehicleStatus = document.getElementById('vehicleStatus');
+           const vehicleAnomalyBadge = document.getElementById('vehicleAnomalyBadge');
+           
+           if (vehicleAnomalyIcon && vehicleAnomalyIcon.querySelector('svg')) {
+               vehicleAnomalyIcon.querySelector('svg').className = `h-5 w-5 ${isVehicleAnomaly ? 'text-red-500' : 'text-gray-400'}`;
+           }
+           
+           if (vehicleStatus) {
+               vehicleStatus.className = `${isVehicleAnomaly ? 'text-red-500' : 'text-gray-400'} text-sm flex items-center`;
+           }
+           
+           if (vehicleAnomalyBadge) {
+               if (isVehicleAnomaly) {
+                   vehicleAnomalyBadge.classList.remove('hidden');
+               } else {
+                   vehicleAnomalyBadge.classList.add('hidden');
+               }
+           }
+       }
+       
+       // Update other stats and components
+       // (API performance, verification rate, etc.)
+       
+       // Update anomaly alert banner
+       updateAnomalyAlert(data);
+       
+       // Update activity lists
+       updateActivityLists(data);
+   }
+   
+   function updateAnomalyAlert(data) {
+       const hasAnomalies = 
+           (data.registration_anomalies && data.registration_anomalies.has_anomaly) || 
+           (data.verification_stats && data.verification_stats.failed_attempts > 0) ||
+           (data.request_stats && data.request_stats.anomalous_requests > 0) ||
+           (data.ml_anomalies && data.ml_anomalies.has_anomaly);
+       
+       const anomalyAlert = document.getElementById('anomalyAlert');
+       if (anomalyAlert) {
+           if (hasAnomalies) {
+               anomalyAlert.classList.remove('hidden');
+               
+               // Update anomaly list
+               const anomalyList = document.getElementById('anomalyList');
+               if (anomalyList) {
+                   anomalyList.innerHTML = ''; // Clear existing items
+                   
+                   // Add user registration anomaly
+                   if (data.registration_anomalies && 
+                       data.registration_anomalies.user_anomaly && 
+                       data.registration_anomalies.user_anomaly.is_anomaly) {
+                       const li = document.createElement('li');
+                       li.className = 'flex items-center';
+                       li.innerHTML = `
+                           <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                           Unusual spike in user registrations detected: ${data.registration_anomalies.user_anomaly.recent_count} new users (threshold: ${Math.round(data.registration_anomalies.user_anomaly.threshold)})
+                       `;
+                       anomalyList.appendChild(li);
+                   }
+                   
+                   // Add vehicle registration anomaly
+                   if (data.registration_anomalies && 
+                       data.registration_anomalies.vehicle_anomaly && 
+                       data.registration_anomalies.vehicle_anomaly.is_anomaly) {
+                       const li = document.createElement('li');
+                       li.className = 'flex items-center';
+                       li.innerHTML = `
+                           <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                           Unusual spike in vehicle registrations detected: ${data.registration_anomalies.vehicle_anomaly.recent_count} new vehicles (threshold: ${Math.round(data.registration_anomalies.vehicle_anomaly.threshold)})
+                       `;
+                       anomalyList.appendChild(li);
+                   }
+                   
+                   // Add verification failures
+                   if (data.verification_stats && data.verification_stats.failed_attempts > 0) {
+                       const li = document.createElement('li');
+                       li.className = 'flex items-center';
+                       li.innerHTML = `
+                           <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                           ${data.verification_stats.failed_attempts} failed verification attempts detected
+                       `;
+                       anomalyList.appendChild(li);
+                   }
+                   
+                   // Add ML anomalies
+                   if (data.ml_anomalies && data.ml_anomalies.has_anomaly) {
+                       const li = document.createElement('li');
+                       li.className = 'flex items-center';
+                       li.innerHTML = `
+                           <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span>
+                           AI detected unusual patterns in system usage
+                       `;
+                       anomalyList.appendChild(li);
+                   }
+               }
+           } else {
+               anomalyAlert.classList.add('hidden');
+           }
+       }
+   }
+   
+   function updateActivityLists(data) {
+       // Update recent failures
+       const failedVerificationsContainer = document.getElementById('failedVerificationsContainer');
+       if (failedVerificationsContainer && data.recent_failures) {
+           failedVerificationsContainer.innerHTML = ''; // Clear existing items
+           
+           if (data.recent_failures.length > 0) {
+               data.recent_failures.forEach(attempt => {
+                   // Create failure item with modern layout
+                   const div = document.createElement('div');
+                   div.className = 'flex items-center justify-between p-4 bg-gray-900 bg-opacity-60 rounded-lg hover:bg-opacity-80 transition-all';
+                   
+                   // Selection of proper icon based on verification type
+                   let iconHtml = '';
+                   if (attempt.verification_type === 'face') {
+                       iconHtml = `
+                           <div class="w-10 h-10 rounded-lg bg-red-900 bg-opacity-30 flex items-center justify-center">
+                               <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                               </svg>
+                           </div>
+                       `;
+                   } else if (attempt.verification_type === 'qr_code') {
+                       iconHtml = `
+                           <div class="w-10 h-10 rounded-lg bg-red-900 bg-opacity-30 flex items-center justify-center">
+                               <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                               </svg>
+                           </div>
+                       `;
+                   } else if (attempt.verification_type === 'certificate') {
+                       iconHtml = `
+                           <div class="w-10 h-10 rounded-lg bg-red-900 bg-opacity-30 flex items-center justify-center">
+                               <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                               </svg>
+                           </div>
+                       `;
+                   } else {
+                       iconHtml = `
+                           <div class="w-10 h-10 rounded-lg bg-red-900 bg-opacity-30 flex items-center justify-center">
+                               <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                               </svg>
+                           </div>
+                       `;
+                   }
+                   
+                   // Format date
+                   let formattedDate;
+                   try {
+                       const date = new Date(attempt.created_at);
+                       formattedDate = date.toLocaleDateString('en-US', { 
+                           month: 'short', 
+                           day: 'numeric', 
+                           hour: '2-digit', 
+                           minute: '2-digit'
+                       });
+                   } catch (e) {
+                       console.error('Error formatting date', e);
+                       formattedDate = attempt.created_at || 'Unknown';
+                   }
+                   
+                   div.innerHTML = `
+                       <div class="flex items-center space-x-3">
+                           <div class="flex-shrink-0">
+                               ${iconHtml}
+                           </div>
+                           <div>
+                               <div class="font-medium text-white">${attempt.verification_type.charAt(0).toUpperCase() + attempt.verification_type.slice(1)} Verification</div>
+                               <div class="text-sm text-gray-400">${attempt.failure_reason || 'Unknown error'}</div>
+                           </div>
+                       </div>
+                       <div class="text-xs text-gray-500">
+                           ${formattedDate}
+                       </div>
+                   `;
+                   
+                   failedVerificationsContainer.appendChild(div);
+               });
+           } else {
+               failedVerificationsContainer.innerHTML = `
+                   <div class="flex flex-col items-center justify-center py-12 text-gray-500">
+                       <div class="w-16 h-16 bg-red-900 bg-opacity-10 rounded-full flex items-center justify-center mb-4">
+                           <svg class="h-8 w-8 text-red-500 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                           </svg>
+                       </div>
+                       <p class="text-gray-400">No failed verification attempts found</p>
+                   </div>
+               `;
+           }
+       }
+       
+       // Update recent anomalies
+       const anomalousRequestsContainer = document.getElementById('anomalousRequestsContainer');
+       if (anomalousRequestsContainer && data.recent_anomalies) {
+           anomalousRequestsContainer.innerHTML = ''; // Clear existing items
+           
+           if (data.recent_anomalies.length > 0) {
+               data.recent_anomalies.forEach(log => {
+                   // Create anomaly item with modern layout
+                   const div = document.createElement('div');
+                   div.className = 'flex items-center justify-between p-4 bg-gray-900 bg-opacity-60 rounded-lg hover:bg-opacity-80 transition-all';
+                   
+                   // Format date
+                   let formattedDate;
+                   try {
+                       const date = new Date(log.created_at);
+                       formattedDate = date.toLocaleDateString('en-US', { 
+                           month: 'short', 
+                           day: 'numeric', 
+                           hour: '2-digit', 
+                           minute: '2-digit'
+                       });
+                   } catch (e) {
+                       console.error('Error formatting date', e);
+                       formattedDate = log.created_at || 'Unknown';
+                   }
+                   
+                   div.innerHTML = `
+                       <div class="flex items-center space-x-3">
+                           <div class="flex-shrink-0">
+                               <div class="w-10 h-10 rounded-lg bg-yellow-900 bg-opacity-30 flex items-center justify-center">
+                                   <svg class="h-5 w-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                   </svg>
+                               </div>
+                           </div>
+                           <div>
+                               <div class="font-medium text-white">${log.method || ''} ${log.endpoint || ''}</div>
+                               <div class="text-sm text-gray-400">${log.anomaly_details || 'Suspicious activity'}</div>
+                           </div>
+                       </div>
+                       <div class="flex flex-col items-end">
+                           <div class="text-xs text-gray-500">
+                               ${formattedDate}
+                           </div>
+                           <div class="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded-full mt-1">
+                               ${log.ip_address || 'Unknown IP'}
+                           </div>
+                       </div>
+                   `;
+                   
+                   anomalousRequestsContainer.appendChild(div);
+               });
+           } else {
+               anomalousRequestsContainer.innerHTML = `
+                   <div class="flex flex-col items-center justify-center py-12 text-gray-500">
+                       <div class="w-16 h-16 bg-yellow-900 bg-opacity-10 rounded-full flex items-center justify-center mb-4">
+                           <svg class="h-8 w-8 text-yellow-500 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                           </svg>
+                       </div>
+                       <p class="text-gray-400">No anomalous requests found</p>
+                   </div>
+               `;
+           }
+       }
+   }
+   
+   // Toast notification function
+   window.showToast = function(message, type = 'success') {
+       const toastContainer = document.getElementById('toast-container');
+       
+       // Create toast element
+       const toast = document.createElement('div');
+       toast.className = `toast ${type}`;
+       toast.textContent = message;
+       
+       // Add to container
+       toastContainer.appendChild(toast);
+       
+       // Trigger animation
+       setTimeout(() => {
+           toast.classList.add('show');
+       }, 10);
+       
+       // Auto remove after delay
+       setTimeout(() => {
+           toast.classList.remove('show');
+           setTimeout(() => {
+               if (toast.parentNode) {
+                   toastContainer.removeChild(toast);
+               }
+           }, 300);
+       }, 3000);
+   };
+});
+</script>
+{% endblock %}

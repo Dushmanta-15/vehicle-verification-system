@@ -1,0 +1,387 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Reports{% endblock %}
+{% block subtitle %}Comprehensive system analytics and statistics{% endblock %}
+
+{% block content %}
+<div class="container mx-auto">
+    <!-- Header with Export Buttons -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
+                Vehicle Verification Reports
+            </h1>
+            <p class="text-gray-400 mt-1">Analytics and registration statistics</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="{{ url_for('admin.export_excel') }}"
+               class="bg-black border border-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-900 flex items-center transition-all duration-200 group">
+                <svg class="w-5 h-5 mr-2 text-green-500 group-hover:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                <span>Excel Report</span>
+            </a>
+            <a href="{{ url_for('admin.export_pdf') }}"
+               class="bg-gradient-to-r from-red-600 to-red-800 text-white px-4 py-2 rounded-lg hover:from-red-700 hover:to-red-900 flex items-center transition-all duration-200 shadow-sm hover:shadow transform hover:scale-105">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                <span>PDF Report</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <!-- Total Users Card -->
+        <div class="relative group overflow-hidden">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
+            <div class="relative bg-black p-6 rounded-2xl border border-gray-800 h-full flex flex-col">
+                <div class="absolute right-6 top-6">
+                    <div class="w-10 h-10 bg-red-900 bg-opacity-30 rounded-lg flex items-center justify-center shadow-lg">
+                        <i class="fas fa-users text-red-500"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-400 mb-5">Total Users</h3>
+                <div class="text-3xl font-bold text-white mb-1">{{ summary.total_users }}</div>
+                <div class="mt-auto pt-4 border-t border-gray-800">
+                    <div class="flex items-center">
+                        <span class="text-xs text-gray-400">System-wide registered users</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Vehicles Card -->
+        <div class="relative group overflow-hidden">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
+            <div class="relative bg-black p-6 rounded-2xl border border-gray-800 h-full flex flex-col">
+                <div class="absolute right-6 top-6">
+                    <div class="w-10 h-10 bg-red-900 bg-opacity-30 rounded-lg flex items-center justify-center shadow-lg">
+                        <i class="fas fa-car text-red-500"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-400 mb-5">Total Vehicles</h3>
+                <div class="text-3xl font-bold text-white mb-1">{{ summary.total_vehicles }}</div>
+                <div class="mt-auto pt-4 border-t border-gray-800">
+                    <div class="flex items-center">
+                        <span class="text-xs text-gray-400">Registered and verified vehicles</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Users Card -->
+        <div class="relative group overflow-hidden">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
+            <div class="relative bg-black p-6 rounded-2xl border border-gray-800 h-full flex flex-col">
+                <div class="absolute right-6 top-6">
+                    <div class="w-10 h-10 bg-green-900 bg-opacity-30 rounded-lg flex items-center justify-center shadow-lg">
+                        <i class="fas fa-user-check text-green-500"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-400 mb-5">Active Users</h3>
+                <div class="text-3xl font-bold text-white mb-1">{{ summary.active_users }}</div>
+                <div class="mt-auto pt-4 border-t border-gray-800">
+                    <div class="flex items-center">
+                        <span class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                        <span class="text-xs text-gray-400">Currently active accounts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Vehicles Today Card -->
+        <div class="relative group overflow-hidden">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
+            <div class="relative bg-black p-6 rounded-2xl border border-gray-800 h-full flex flex-col">
+                <div class="absolute right-6 top-6">
+                    <div class="w-10 h-10 bg-yellow-900 bg-opacity-30 rounded-lg flex items-center justify-center shadow-lg">
+                        <i class="fas fa-calendar-day text-yellow-500"></i>
+                    </div>
+                </div>
+                <h3 class="text-sm font-medium text-gray-400 mb-5">New Vehicles Today</h3>
+                <div class="text-3xl font-bold text-white mb-1">{{ summary.new_vehicles_today }}</div>
+                <div class="mt-auto pt-4 border-t border-gray-800">
+                    <div class="flex items-center">
+                        <span class="text-xs {% if summary.new_vehicles_today > 0 %}text-green-400{% else %}text-gray-400{% endif %}">
+                            {% if summary.new_vehicles_today > 0 %}+{{ summary.new_vehicles_today }} since yesterday{% else %}No new registrations today{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Visualization Container -->
+    <div class="relative group overflow-hidden mb-8">
+        <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
+        <div class="relative bg-black backdrop-filter backdrop-blur-sm p-6 rounded-2xl border border-gray-800 overflow-hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <span class="w-8 h-8 mr-3 rounded-lg bg-red-900 bg-opacity-50 flex items-center justify-center">
+                        <i class="fas fa-chart-bar text-red-500"></i>
+                    </span>
+                    Registration Trends
+                </h2>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-red-500 opacity-70 rounded-sm mr-2"></div>
+                        <span class="text-xs text-gray-400">Users</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-500 opacity-70 rounded-sm mr-2"></div>
+                        <span class="text-xs text-gray-400">Vehicles</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="h-80">
+                <svg width="100%" height="100%" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet">
+                    <!-- Background -->
+                    <rect x="50" y="30" width="700" height="220" fill="#111827" fill-opacity="0.3" rx="6" ry="6" />
+                    
+                    <!-- Grid lines -->
+                    <line x1="50" y1="30" x2="750" y2="30" stroke="#374151" stroke-width="1" />
+                    <line x1="50" y1="80" x2="750" y2="80" stroke="#374151" stroke-width="1" />
+                    <line x1="50" y1="130" x2="750" y2="130" stroke="#374151" stroke-width="1" />
+                    <line x1="50" y1="180" x2="750" y2="180" stroke="#374151" stroke-width="1" />
+                    <line x1="50" y1="230" x2="750" y2="230" stroke="#374151" stroke-width="1" />
+                    <line x1="50" y1="250" x2="750" y2="250" stroke="#374151" stroke-width="1" />
+                    
+                    <!-- Axes -->
+                    <line x1="50" y1="250" x2="750" y2="250" stroke="#6B7280" stroke-width="2" />
+                    <line x1="50" y1="30" x2="50" y2="250" stroke="#6B7280" stroke-width="2" />
+                    
+                    <!-- Y-axis labels -->
+                    <text x="45" y="250" text-anchor="end" font-size="12" fill="#9CA3AF">0</text>
+                    <text x="45" y="200" text-anchor="end" font-size="12" fill="#9CA3AF">5</text>
+                    <text x="45" y="150" text-anchor="end" font-size="12" fill="#9CA3AF">10</text>
+                    <text x="45" y="100" text-anchor="end" font-size="12" fill="#9CA3AF">15</text>
+                    <text x="45" y="50" text-anchor="end" font-size="12" fill="#9CA3AF">20</text>
+                    
+                    <!-- Y-axis title -->
+                    <text x="20" y="140" text-anchor="middle" font-size="14" fill="#9CA3AF" transform="rotate(-90, 20, 140)">Registrations</text>
+                    
+                    <!-- Bars for each month -->
+                    {% set bar_width = 20 %}
+                    {% set bar_spacing = 40 %}
+                    {% set x_start = 80 %}
+                    
+                    {% for month in monthly_registrations %}
+                        {% set bar_x = x_start + loop.index0 * (bar_width * 2 + bar_spacing) %}
+                        {% set user_height = (month.users_registered / 20) * 200 if month.users_registered <= 20 else 200 %}
+                        {% set vehicle_height = (month.vehicles_registered / 20) * 200 if month.vehicles_registered <= 20 else 200 %}
+                        {% set user_y = 250 - user_height %}
+                        {% set vehicle_y = 250 - vehicle_height %}
+                        
+                        <!-- User registrations bar -->
+                        <rect x="{{ bar_x }}" y="{{ user_y }}" width="{{ bar_width }}" height="{{ user_height }}" 
+                              fill="rgba(239, 68, 68, 0.7)" rx="3" ry="3">
+                            <animate attributeName="height" from="0" to="{{ user_height }}" dur="1s" fill="freeze" />
+                            <animate attributeName="y" from="250" to="{{ user_y }}" dur="1s" fill="freeze" />
+                        </rect>
+                        
+                        <!-- User count label -->
+                        {% if month.users_registered > 0 %}
+                            <text x="{{ bar_x + bar_width/2 }}" y="{{ user_y - 5 }}" text-anchor="middle" font-size="10" 
+                                fill="#F87171">{{ month.users_registered }}</text>
+                        {% endif %}
+                        
+                        <!-- Vehicle registrations bar -->
+                        <rect x="{{ bar_x + bar_width + 5 }}" y="{{ vehicle_y }}" width="{{ bar_width }}" height="{{ vehicle_height }}" 
+                              fill="rgba(16, 185, 129, 0.7)" rx="3" ry="3">
+                            <animate attributeName="height" from="0" to="{{ vehicle_height }}" dur="1s" fill="freeze" />
+                            <animate attributeName="y" from="250" to="{{ vehicle_y }}" dur="1s" fill="freeze" />
+                        </rect>
+                        
+                        <!-- Vehicle count label -->
+                        {% if month.vehicles_registered > 0 %}
+                            <text x="{{ bar_x + bar_width + 5 + bar_width/2 }}" y="{{ vehicle_y - 5 }}" text-anchor="middle" font-size="10" 
+                                fill="#34D399">{{ month.vehicles_registered }}</text>
+                        {% endif %}
+                        
+                        <!-- Month label -->
+                        <text x="{{ bar_x + bar_width + 2.5 }}" y="270" text-anchor="middle" font-size="12" fill="#9CA3AF">
+                            {{ month.month[:3] }}
+                        </text>
+                    {% endfor %}
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Monthly Registration Table -->
+    <div class="relative group overflow-hidden mb-8">
+        <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
+        <div class="relative bg-black backdrop-filter backdrop-blur-sm p-6 rounded-2xl border border-gray-800">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <span class="w-8 h-8 mr-3 rounded-lg bg-red-900 bg-opacity-50 flex items-center justify-center">
+                        <i class="fas fa-table text-red-500"></i>
+                    </span>
+                    Monthly Registration Statistics
+                </h2>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-800">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-gray-900 rounded-tl-lg">
+                                Month
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-gray-900">
+                                Users Registered
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-gray-900">
+                                Vehicles Registered
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider bg-gray-900 rounded-tr-lg">
+                                Total
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-800">
+                        {% for month in monthly_registrations %}
+                        <tr class="hover:bg-gray-900 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
+                                {{ month.month }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="h-2 w-20 bg-gray-800 rounded-full mr-2">
+                                        <div class="h-2 bg-red-500 rounded-full" style="width: {{ (month.users_registered / 20) * 100 if month.users_registered <= 20 else 100 }}%;"></div>
+                                    </div>
+                                    <span class="text-sm text-white">{{ month.users_registered }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="h-2 w-20 bg-gray-800 rounded-full mr-2">
+                                        <div class="h-2 bg-green-500 rounded-full" style="width: {{ (month.vehicles_registered / 20) * 100 if month.vehicles_registered <= 20 else 100 }}%;"></div>
+                                    </div>
+                                    <span class="text-sm text-white">{{ month.vehicles_registered }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
+                                {{ month.users_registered + month.vehicles_registered }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Registrations -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Recent Users -->
+        <div class="relative group overflow-hidden">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
+            <div class="relative bg-black backdrop-filter backdrop-blur-sm p-6 rounded-2xl border border-gray-800 h-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white flex items-center">
+                        <span class="w-8 h-8 mr-3 rounded-lg bg-red-900 bg-opacity-50 flex items-center justify-center">
+                            <i class="fas fa-user-plus text-red-500"></i>
+                        </span>
+                        Recent Users
+                    </h2>
+                </div>
+                
+                <div class="overflow-hidden">
+                    <div class="space-y-3">
+                        {% for user in recent_users %}
+                        <div class="flex items-center justify-between p-3 bg-gray-900 bg-opacity-50 rounded-lg hover:bg-opacity-70 transition-all duration-200">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0 w-10 h-10 bg-red-900 bg-opacity-30 rounded-full flex items-center justify-center">
+                                    <span class="text-red-500 font-bold">{{ user.username[0]|upper }}</span>
+                                </div>
+                                <div>
+                                    <div class="text-white font-medium">{{ user.username }}</div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-400 bg-black bg-opacity-50 px-2 py-1 rounded-md">
+                                {{ user.created_at.strftime('%d-%m-%Y') }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Vehicles -->
+        <div class="relative group overflow-hidden">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-red-700 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
+            <div class="relative bg-black backdrop-filter backdrop-blur-sm p-6 rounded-2xl border border-gray-800 h-full">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white flex items-center">
+                        <span class="w-8 h-8 mr-3 rounded-lg bg-red-900 bg-opacity-50 flex items-center justify-center">
+                            <i class="fas fa-car text-red-500"></i>
+                        </span>
+                        Recent Vehicles
+                    </h2>
+                </div>
+                
+                <div class="overflow-hidden">
+                    <div class="space-y-3">
+                        {% for vehicle in recent_vehicles %}
+                        <div class="flex items-center justify-between p-3 bg-gray-900 bg-opacity-50 rounded-lg hover:bg-opacity-70 transition-all duration-200">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0 w-10 h-10 bg-red-900 bg-opacity-30 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-car text-red-500"></i>
+                                </div>
+                                <div>
+                                    <div class="text-white font-medium">{{ vehicle.vehicle_number }}</div>
+                                    <div class="text-xs text-gray-400">{{ vehicle.owner_name }}</div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-400 bg-black bg-opacity-50 px-2 py-1 rounded-md">
+                                {{ vehicle.created_at.strftime('%d-%m-%Y') }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animation for charts when they come into view
+    document.addEventListener('DOMContentLoaded', function() {
+        function animateOnScroll(entries, observer) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }
+
+        const observer = new IntersectionObserver(animateOnScroll, {
+            root: null,
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.relative.group.overflow-hidden').forEach(element => {
+            element.classList.add('opacity-0');
+            observer.observe(element);
+        });
+    });
+
+    // Utility function to create animation class
+    document.querySelectorAll('.animate-fade-in').forEach(el => {
+        el.style.animation = 'none';
+        el.offsetHeight; // Trigger reflow
+        el.style.animation = null;
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="bg-black rounded-2xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+        <div class="p-8">
+            <div class="flex flex-col items-center mb-8">
+                <div class="h-20 w-20 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mb-5 shadow-lg transform transition-transform hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">Welcome Back</h2>
+                <p class="text-gray-300 mt-2 font-medium">Log in to your secure account</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div class="space-y-5">
+                    <div class="relative">
+                        <label for="username" class="block text-sm font-medium text-white mb-1">Username</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input type="text" id="username" name="username" required 
+                                class="block w-full pl-10 pr-4 py-3 rounded-xl border border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 ease-in-out hover:border-red-500"
+                                placeholder="Enter your username">
+                        </div>
+                    </div>
+
+                    <div class="relative">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="password" class="block text-sm font-medium text-white">Password</label>
+                            <button type="button" id="forgotPasswordBtn" 
+                                class="text-sm text-red-500 hover:text-red-400 transition-colors">
+                                Forgot Password?
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input type="password" id="password" name="password" required 
+                                class="block w-full pl-10 pr-4 py-3 rounded-xl border border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 ease-in-out hover:border-red-500"
+                                placeholder="Enter your password">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-3">Face Verification</label>
+                        <div class="relative rounded-xl overflow-hidden bg-black border-2 border-dashed border-gray-800 transition-all duration-200 hover:border-red-500">
+                            <video id="videoElement" class="w-full h-64 object-cover" autoplay></video>
+                            <canvas id="canvasElement" style="display:none;"></canvas>
+                            <img id="capturedImage" class="w-full h-64 object-cover" style="display:none;">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 backdrop-filter backdrop-blur-sm" id="cameraOverlay">
+                                <div class="text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-3 text-white opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <p class="text-white text-lg">Start camera for facial verification</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button type="button" id="startCamera" 
+                                class="flex items-center justify-center px-4 py-3 bg-black text-white border border-gray-800 rounded-xl hover:bg-gray-900 transition duration-200 transform hover:scale-[1.02]">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <span class="font-medium">Start Camera</span>
+                        </button>
+                        <button type="button" id="captureButton" 
+                                class="flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition duration-200 transform hover:scale-[1.02]">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            </svg>
+                            <span class="font-medium">Verify Face</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" 
+                        class="w-full flex items-center justify-center px-4 py-3.5 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-xl font-medium hover:from-red-700 hover:to-red-900 transition duration-300 transform hover:translate-y-[-2px] shadow-md hover:shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Log in Securely</span>
+                </button>
+
+                <div class="relative py-3">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-800"></div>
+                    </div>
+                    <div class="relative flex justify-center">
+                        <span class="px-3 bg-black text-gray-400 text-sm">or</span>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <p class="text-gray-300">
+                        Don't have an account? 
+                        <a href="/register" class="font-semibold text-red-500 hover:text-red-400 transition-colors">
+                            Create one now
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgotPasswordModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center hidden z-50 backdrop-filter backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-black rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl border border-gray-800 transform transition-all">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-white">Reset Your Password</h3>
+            <button type="button" id="closeModal" class="text-gray-400 hover:text-gray-300 transition-colors">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <form id="forgotPasswordForm" class="space-y-6">
+            <div>
+                <label for="resetEmail" class="block text-sm font-medium text-white mb-1">
+                    Email Address
+                </label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <input type="email" id="resetEmail" name="resetEmail" required
+                           class="block w-full pl-10 pr-4 py-3 rounded-xl border border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 ease-in-out hover:border-red-500"
+                           placeholder="name@company.com">
+                </div>
+                <p class="mt-2 text-sm text-gray-400">
+                    We'll send you a secure link to reset your password
+                </p>
+            </div>
+
+            <button type="submit" 
+                    class="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-xl font-medium hover:from-red-700 hover:to-red-900 transition duration-300 transform hover:translate-y-[-2px] shadow-md hover:shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span>Send Reset Link</span>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+<script>
+    // Make sure the navigation links in the header redirect to the homepage
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all navigation links with the Features and How It Works text
+        const navLinks = document.querySelectorAll('nav a, header a, .navigation a');
+        
+        navLinks.forEach(link => {
+            // Check if the link text includes Features or How It Works (case insensitive)
+            const linkText = link.textContent.trim().toLowerCase();
+            if (linkText.includes('features') || linkText.includes('how it works')) {
+                // Set the href to the homepage
+                link.setAttribute('href', '/');
+                
+                // Add click event listener as a backup
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = '/';
+                });
+            }
+        });
+
+        const cameraOverlay = document.getElementById('cameraOverlay');
+        const videoElement = document.getElementById('videoElement');
+        
+        // Hide overlay when camera starts
+        videoElement.addEventListener('play', function() {
+            cameraOverlay.style.opacity = '0';
+            setTimeout(() => {
+                cameraOverlay.style.display = 'none';
+            }, 300);
+        });
+        
+        // Show overlay when camera stops
+        videoElement.addEventListener('ended', function() {
+            cameraOverlay.style.display = 'flex';
+            setTimeout(() => {
+                cameraOverlay.style.opacity = '1';
+            }, 10);
+        });
+
+        // Forgot Password Modal Handling
+        const modal = document.getElementById('forgotPasswordModal');
+        const openModalBtn = document.getElementById('forgotPasswordBtn');
+        const closeModalBtn = document.getElementById('closeModal');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+
+        openModalBtn.addEventListener('click', function() {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                modal.querySelector('.bg-black').classList.add('scale-100');
+                modal.querySelector('.bg-black').classList.remove('scale-95');
+            }, 10);
+        });
+
+        function closeModal() {
+            modal.style.opacity = '0';
+            modal.querySelector('.bg-black').classList.add('scale-95');
+            modal.querySelector('.bg-black').classList.remove('scale-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        closeModalBtn.addEventListener('click', closeModal);
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Handle forgot password form submission
+        forgotPasswordForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('resetEmail').value;
+
+            try {
+                const response = await fetch('/api/forgot-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showNotification('Password reset link has been sent to your email!', 'success');
+                    closeModal();
+                } else {
+                    showNotification(data.error || 'Failed to send reset link', 'error');
+                }
+            } catch (error) {
+                showNotification('An error occurred. Please try again.', 'error');
+            }
+        });
+        
+        // Notification function
+        function showNotification(message, type) {
+            const notificationContainer = document.createElement('div');
+            notificationContainer.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
+                type === 'success' ? 'bg-green-900 border-l-4 border-green-500' : 'bg-red-900 border-l-4 border-red-500'
+            } transition-all duration-500 transform translate-y-[-20px] opacity-0`;
+            
+            notificationContainer.innerHTML = `
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 ${type === 'success' ? 'text-green-400' : 'text-red-400'}" viewBox="0 0 20 20" fill="currentColor">
+                            ${type === 'success' 
+                                ? '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>'
+                                : '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>'
+                            }
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-white">${message}</p>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notificationContainer);
+            
+            // Fade in animation
+            setTimeout(() => {
+                notificationContainer.classList.remove('translate-y-[-20px]');
+                notificationContainer.classList.remove('opacity-0');
+            }, 10);
+            
+            // Remove notification after 4 seconds
+            setTimeout(() => {
+                notificationContainer.classList.add('opacity-0');
+                notificationContainer.classList.add('translate-y-[-20px]');
+                setTimeout(() => {
+                    notificationContainer.remove();
+                }, 500);
+            }, 4000);
+        }
+    });
+</script>
+{% endblock %}

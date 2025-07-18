@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+            <div class="bg-black/60 backdrop-filter backdrop-blur-xl shadow-2xl rounded-2xl p-6 border border-gray-800/40">
+                <h2 class="text-lg font-medium text-white mb-4">Verify Vehicle</h2>
+                
+                <!-- QR Scanner -->
+                <div class="mb-6">
+                    <div id="reader" class="w-full max-w-lg mx-auto border-2 border-gray-700/50 rounded-lg overflow-hidden bg-black/20" style="min-height: 400px;"></div>
+                    <div class="mt-4 flex justify-center space-x-4">
+                        <button onclick="startScanner()" id="startButton"
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-all duration-300 shadow-lg">
+                            Start Camera
+                        </button>
+                        <button onclick="stopScanner()" id="stopButton"
+                                class="hidden inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-all duration-300 shadow-lg">
+                            Stop Camera
+                        </button>
+                        <button onclick="verifyQRCode()" id="verifyButton"
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 opacity-50 cursor-not-allowed transition-all duration-300 shadow-lg"
+                                disabled>
+                            Verify QR Code
+                        </button>
+                    </div>
+                </div>
+
+                <!-- QR Code Preview -->
+                <div id="qrPreview" class="hidden mt-4 p-4 border border-gray-700/50 rounded-lg bg-black/20 backdrop-blur-sm">
+                    <h3 class="text-md font-medium text-gray-200 mb-2">Captured QR Code Data</h3>
+                    <p id="qrData" class="text-sm text-gray-300 break-all font-mono bg-black/40 p-3 rounded border border-gray-700/30"></p>
+                </div>
+
+                <!-- File Upload Option -->
+                <div class="mt-8 border-t border-gray-700/50 pt-6">
+                    <h3 class="text-lg font-medium text-white mb-4">Or Upload QR Code Image</h3>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-700/50 border-dashed rounded-md hover:border-red-500/50 transition-colors duration-300 bg-black/20">
+                        <div class="space-y-1 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" 
+                                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="flex text-sm text-gray-300 justify-center">
+                                <label for="qrFile" class="relative cursor-pointer bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-md px-3 py-2 font-medium text-white transition-all duration-300 shadow-lg">
+                                    <span>Upload a QR code</span>
+                                    <input id="qrFile" name="qrFile" type="file" class="sr-only" accept="image/*">
+                                </label>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG up to 5MB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loadingIndicator" class="hidden fixed inset-0 bg-black/80 backdrop-filter backdrop-blur-sm flex items-center justify-center z-50">
+                    <div class="bg-black/80 backdrop-filter backdrop-blur-xl p-6 rounded-lg shadow-2xl border border-gray-800/50">
+                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto"></div>
+                        <p class="mt-4 text-center text-white">Processing...</p>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div id="results" class="mt-8 hidden">
+                    <div id="verificationStatus"></div>
+                    <div id="vehicleInfo" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+let html5QrcodeScanner = null;
+let currentQRData = null;
+
+function showLoading(show) {
+    document.getElementById('loadingIndicator').classList.toggle('hidden', !show);
+}
+
+function enableVerifyButton(enable) {
+    const verifyButton = document.getElementById('verifyButton');
+    if (enable) {
+        verifyButton.disabled = false;
+        verifyButton.classList.remove('opacity-50', 'cursor-not-allowed');
+    } else {
+        verifyButton.disabled = true;
+        verifyButton.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+async function startScanner() {
+    try {
+        if (html5QrcodeScanner) {
+            await html5QrcodeScanner.stop();
+        }
+
+        // Create new instance
+        const html5Qrcode = new Html5Qrcode("reader");
+        html5QrcodeScanner = html5Qrcode;
+
+        const qrConfig = {
+            fps: 30,  // Increased FPS for better detection
+            qrbox: { width: 300, height: 300 },  // Increased size
+            aspectRatio: 1.0,
+            disableFlip: false,
+            videoConstraints: {
+                facingMode: "environment",
+                width: { min: 640, ideal: 1080, max: 1920 },
+                height: { min: 480, ideal: 720, max: 1080 }
+            }
+        };
+
+        console.log("Starting QR scanner...");
+        
+        await html5Qrcode.start(
+            { facingMode: "environment" },
+            qrConfig,
+            (decodedText) => {
+                console.log("QR Code detected!", decodedText);
+                try {
+                    // Try to parse as JSON
+                    try {
+                        JSON.parse(decodedText);
+                    } catch (error) {
+                        console.log("Not JSON format, using as raw value");
+                    }
+                    
+                    currentQRData = decodedText;
+                    
+                    // Update UI
+                    document.getElementById('qrPreview').classList.remove('hidden');
+                    document.getElementById('qrData').textContent = decodedText;
+                    document.getElementById('verifyButton').style.display = 'inline-flex';
+                    document.getElementById('verifyButton').disabled = false;
+                    document.getElementById('verifyButton').classList.remove('opacity-50', 'cursor-not-allowed');
+                    
+                    // Pause scanner
+                    html5Qrcode.pause();
+                } catch (error) {
+                    console.error("QR data processing error:", error);
+                }
+            },
+            (errorMessage) => {
+                // Just log scanning is in progress
+                console.log("Scanning...");
+            }
+        ).catch((err) => {
+            console.error("Start failed:", err);
+        });
+
+        // Update UI
+        document.getElementById('startButton').classList.add('hidden');
+        document.getElementById('stopButton').classList.remove('hidden');
+        document.getElementById('verifyButton').style.display = 'none';
+        
+        console.log("Scanner started successfully");
+
+    } catch (err) {
+        console.error("Scanner initialization error:", err);
+        alert("Could not start scanner. Please check camera permissions.");
+    }
+}
+
+function stopScanner() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().then(() => {
+            html5QrcodeScanner = null;
+            // Reset UI
+            document.getElementById('startButton').classList.remove('hidden');
+            document.getElementById('stopButton').classList.add('hidden');
+            document.getElementById('qrPreview').classList.add('hidden');
+            document.getElementById('qrData').textContent = '';
+            enableVerifyButton(false);
+            currentQRData = null;
+        }).catch((err) => {
+            console.error("Error stopping scanner:", err);
+        });
+    }
+}
+
+// Function to resume scanning
+function resumeScanner() {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.resume();
+    }
+}
+
+// Update the verifyQRCode function
+async function verifyQRCode() {
+    if (!currentQRData) {
+        alert('No QR code data available to verify');
+        return;
+    }
+
+    showLoading(true);
+    try {
+        console.log("Sending QR data for verification:", currentQRData);
+        
+        // Ensure the data is properly formatted for the backend
+        let processedData = currentQRData;
+        
+        try {
+            // If it's already a JSON string, use it directly
+            // If not, try to create a valid JSON object
+            if (typeof processedData === 'string') {
+                try {
+                    // Check if it's already valid JSON
+                    JSON.parse(processedData);
+                } catch (e) {
+                    // Not valid JSON, try to wrap it
+                    processedData = JSON.stringify({ raw_data: processedData });
+                }
+            }
+        } catch (error) {
+            console.log("Error formatting QR data:", error);
+            // Just use the raw data if all else fails
+        }
+
+        const response = await fetch('/api/vehicles/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ qr_data: processedData })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Verification failed');
+        }
+
+        const data = await response.json();
+        console.log("Verification response:", data);
+
+        displayResults(data);
+        
+        // Stop scanner after successful verification
+        if (html5QrcodeScanner) {
+            await stopScanner();
+        }
+    } catch (error) {
+        console.error('Verification error:', error);
+        showError(error.message || 'Failed to verify QR code');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Add these helper functions
+function clearResults() {
+    document.getElementById('results').classList.add('hidden');
+    document.getElementById('verificationStatus').innerHTML = '';
+    document.getElementById('vehicleInfo').innerHTML = '';
+}
+
+function resetScanner() {
+    if (html5QrcodeScanner) {
+        stopScanner();
+    }
+    clearResults();
+    currentQRData = null;
+    document.getElementById('qrPreview').classList.add('hidden');
+    document.getElementById('qrData').textContent = '';
+    enableVerifyButton(false);
+}
+
+// File upload handler - Fixed for better QR code detection
+document.getElementById('qrFile').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+        showError('File is too large. Maximum size is 5MB.');
+        return;
+    }
+
+    try {
+        showLoading(true);
+        clearResults();
+        
+        const html5QrCode = new Html5Qrcode("reader");
+        
+        // Better error handling for QR code scanning
+        try {
+            const result = await html5QrCode.scanFile(file, /* verbose= */ true);
+            console.log("QR Code from image:", result);
+            
+            currentQRData = result;
+            document.getElementById('qrPreview').classList.remove('hidden');
+            document.getElementById('qrData').textContent = result;
+            enableVerifyButton(true);
+            
+            html5QrCode.clear();
+        } catch (error) {
+            console.error("QR code scanning error:", error);
+            
+            // Try an alternative approach - manual image processing
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = async function() {
+                    try {
+                        // Alternative: Try direct API verification without QR scanning
+                        // This sends the raw image data to the server
+                        const imageData = event.target.result.split(',')[1]; // Remove data URL prefix
+                        
+                        // Attempt to verify with raw image data
+                        console.log("Trying direct verification with image data");
+                        
+                        const response = await fetch('/api/vehicles/verify', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ 
+                                image_data: imageData,
+                                filename: file.name
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || 'Image verification failed');
+                        }
+                        
+                        const data = await response.json();
+                        console.log("Direct verification response:", data);
+                        
+                        displayResults(data);
+                    } catch (verifyError) {
+                        console.error("Alternative verification failed:", verifyError);
+                        showError('Could not read QR code from this image. Please try a clearer image or use the camera scanner.');
+                    }
+                };
+                img.onerror = function() {
+                    showError('Invalid image file');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    } catch (error) {
+        console.error('File processing error:', error);
+        showError('Failed to process the image file');
+    } finally {
+        showLoading(false);
+    }
+});
+
+function displayResults(data) {
+    const vehicle = data.vehicle_data;
+    const status = document.getElementById('verificationStatus');
+    const info = document.getElementById('vehicleInfo');
+    const results = document.getElementById('results');
+
+    // Show success status with dark theme
+    status.innerHTML = `
+        <div class="bg-gradient-to-r from-green-900/50 to-green-800/40 border border-green-700/50 p-4 rounded-lg backdrop-blur-sm">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-green-300">Vehicle verified successfully</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Display vehicle details with dark theme
+    info.innerHTML = `
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+            <div class="bg-black/30 p-3 rounded-lg border border-gray-700/40">
+                <dt class="text-sm font-medium text-gray-400">Vehicle Number</dt>
+                <dd class="mt-1 text-sm text-white font-semibold">${vehicle.vehicle_number}</dd>
+            </div>
+            <div class="bg-black/30 p-3 rounded-lg border border-gray-700/40">
+                <dt class="text-sm font-medium text-gray-400">Owner Name</dt>
+                <dd class="mt-1 text-sm text-white font-semibold">${vehicle.owner_name}</dd>
+            </div>
+            <div class="bg-black/30 p-3 rounded-lg border border-gray-700/40">
+                <dt class="text-sm font-medium text-gray-400">Model</dt>
+                <dd class="mt-1 text-sm text-white font-semibold">${vehicle.model || 'N/A'}</dd>
+            </div>
+            <div class="bg-black/30 p-3 rounded-lg border border-gray-700/40">
+                <dt class="text-sm font-medium text-gray-400">Year</dt>
+                <dd class="mt-1 text-sm text-white font-semibold">${vehicle.year || 'N/A'}</dd>
+            </div>
+            <div class="col-span-2 bg-black/30 p-3 rounded-lg border border-gray-700/40">
+                <dt class="text-sm font-medium text-gray-400">Verification Time</dt>
+                <dd class="mt-1 text-sm text-white font-semibold">${new Date(data.timestamp).toLocaleString()}</dd>
+            </div>
+            <div class="col-span-2">
+                <button onclick="resetScanner()" class="mt-4 inline-flex items-center px-4 py-2 border border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-300 bg-black/40 hover:bg-gray-800/60 hover:text-white transition-all duration-300">
+                    Verify Another QR Code
+                </button>
+            </div>
+        </dl>
+    `;
+
+    results.classList.remove('hidden');
+}
+
+function showError(message) {
+    const status = document.getElementById('verificationStatus');
+    const info = document.getElementById('vehicleInfo');
+    const results = document.getElementById('results');
+
+    status.innerHTML = `
+        <div class="bg-gradient-to-r from-red-900/50 to-red-800/40 border border-red-700/50 p-4 rounded-lg backdrop-blur-sm">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-300">${message}</p>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <button onclick="resetScanner()" class="inline-flex items-center px-4 py-2 border border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-300 bg-black/40 hover:bg-gray-800/60 hover:text-white transition-all duration-300">
+                Try Again
+            </button>
+        </div>
+    `;
+    info.innerHTML = '';
+    results.classList.remove('hidden');
+}
+</script>
+{% endblock %}

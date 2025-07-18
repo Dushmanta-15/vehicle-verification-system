@@ -1,0 +1,671 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 to-black">
+    <!-- Navigation component would be here -->
+    
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-white">Digital Certificates</h1>
+            <p class="mt-1 text-sm text-gray-400">Manage and verify digital certificates for your vehicles and identity</p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Certificate Status Card -->
+            <div class="lg:col-span-3 bg-black overflow-hidden shadow-md rounded-xl border border-gray-800">
+                <div class="bg-gradient-to-r from-red-600 to-red-800 px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-black rounded-full p-2">
+                            <svg class="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h2 class="ml-3 text-lg font-semibold text-white">Your Digital Certificate</h2>
+                    </div>
+                </div>
+                
+                <!-- Certificate Content -->
+                <div id="certificateInfo" class="p-6">
+                    <!-- Loading state will be replaced by JavaScript -->
+                    <div class="flex items-center justify-center h-64">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-full absolute border-4 border-gray-800"></div>
+                            <div class="w-12 h-12 rounded-full animate-spin absolute border-4 border-red-600 border-t-transparent"></div>
+                        </div>
+                        <span class="ml-4 text-sm font-medium text-gray-300">Loading certificate data...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verify Certificate Section -->
+            <div class="lg:col-span-3 bg-black overflow-hidden shadow-md rounded-xl border border-gray-800">
+                <div class="bg-gradient-to-r from-red-600 to-red-800 px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-black rounded-full p-2">
+                            <svg class="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h2 class="ml-3 text-lg font-semibold text-white">Verify Certificate</h2>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="space-y-5">
+                        <div>
+                            <label for="verifyInput" class="block text-sm font-medium text-white mb-2">Paste Certificate PEM to Verify</label>
+                            <div class="relative bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+                                <div class="absolute top-2 right-2 z-10 flex space-x-2">
+                                    <button id="pasteFromClipboard" class="flex items-center text-xs font-medium text-red-500 hover:text-red-400 focus:outline-none bg-black px-2 py-1 rounded-md shadow-sm border border-gray-800">
+                                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                        Paste
+                                    </button>
+                                    <button id="clearInput" class="flex items-center text-xs font-medium text-gray-400 hover:text-gray-300 focus:outline-none bg-black px-2 py-1 rounded-md shadow-sm border border-gray-800">
+                                        <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        Clear
+                                    </button>
+                                </div>
+                                <textarea id="verifyInput" rows="8" 
+                                      class="block w-full p-4 text-sm font-mono bg-gray-900 text-white border-0 focus:ring-0"
+                                      placeholder="-----BEGIN CERTIFICATE-----"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <button id="verifyButton" 
+                                    class="inline-flex items-center px-5 py-2.5 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all">
+                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Verify Certificate
+                            </button>
+                        </div>
+
+                        <!-- Loading Indicator with improved styling -->
+                        <div id="loadingIndicator" class="hidden">
+                            <div class="flex items-center justify-center bg-gray-900 rounded-xl p-4 border border-gray-800">
+                                <div class="relative">
+                                    <div class="w-12 h-12 rounded-full absolute border-4 border-gray-800"></div>
+                                    <div class="w-12 h-12 rounded-full animate-spin absolute border-4 border-red-600 border-t-transparent"></div>
+                                </div>
+                                <span class="ml-4 text-sm font-medium text-gray-300">Verifying certificate...</span>
+                            </div>
+                        </div>
+
+                        <!-- Verification Results -->
+                        <div id="verificationResults" class="hidden mt-6 space-y-6 bg-gray-900 rounded-xl p-6 border border-gray-800">
+                            <div id="verificationStatus"></div>
+                            <div id="verificationDetails"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification Container -->
+<div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadCertificate();
+    
+    // Add event listeners for buttons
+    document.getElementById('pasteFromClipboard').addEventListener('click', function() {
+        navigator.clipboard.readText()
+            .then(function(text) {
+                document.getElementById('verifyInput').value = text;
+                showToast('Certificate pasted from clipboard', 'success');
+            })
+            .catch(function(err) {
+                console.error('Failed to read clipboard contents: ', err);
+                showToast('Failed to paste from clipboard', 'error');
+            });
+    });
+    
+    document.getElementById('clearInput').addEventListener('click', function() {
+        document.getElementById('verifyInput').value = '';
+        showToast('Input cleared', 'success');
+    });
+    
+    document.getElementById('verifyButton').addEventListener('click', verifyCertificate);
+});
+
+async function loadCertificate() {
+    // Certificate info section is already in a loading state initially
+    const certificateInfo = document.getElementById('certificateInfo');
+    
+    try {
+        const response = await fetch('/api/certificates/current');
+        
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Failed to load certificate');
+        }
+        
+        const data = await response.json();
+        
+        // Extract certificate info from the response
+        const info = data.info || {};
+        
+        // Try different approaches to find username
+        let username = 'N/A';
+        let email = 'N/A';
+        
+        // Try in subject
+        if (info.subject) {
+            if (info.subject.username) username = info.subject.username;
+            if (info.subject.common_name) username = info.subject.common_name;
+            if (info.subject.cn) username = info.subject.cn;
+            if (info.subject.email) email = info.subject.email;
+        }
+        
+        // Try in public_key field (might be embedded in a JSON string)
+        if (username === 'N/A' && data.public_key) {
+            try {
+                // Some implementations embed JSON in the public key string
+                const keyData = JSON.parse(data.public_key);
+                if (keyData.username) username = keyData.username;
+                if (keyData.email) email = keyData.email;
+            } catch (e) {
+                // Not JSON, that's fine
+            }
+        }
+        
+        // Try direct in data
+        if (username === 'N/A') {
+            if (data.username) username = data.username;
+            if (data.email) email = data.email;
+        }
+        
+        // Try to parse certificate content directly
+        if (username === 'N/A' && data.certificate) {
+            const certLines = data.certificate.split('\n');
+            for (const line of certLines) {
+                if (line.includes('CN=') || line.includes('Common Name=')) {
+                    const cnMatch = line.match(/CN=([^,/]+)/i) || line.match(/Common Name=([^,/]+)/i);
+                    if (cnMatch && cnMatch[1]) {
+                        username = cnMatch[1].trim();
+                    }
+                }
+            }
+        }
+        
+        // Check if validity exists and set default values if not
+        const validity = info.validity || {};
+        const validFrom = validity.not_before || validity.notBefore || validity.valid_from || '';
+        const validUntil = validity.not_after || validity.notAfter || validity.valid_until || '';
+        
+        // Prepare certificate info HTML
+        let certInfoHTML = `
+            <!-- Certificate Details Section -->
+            <div class="mb-6">
+                <h3 class="text-md font-semibold text-white mb-4 flex items-center">
+                    <svg class="h-5 w-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Certificate Details
+                </h3>
+                
+                <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                    <dl class="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-4">
+                        <div class="relative">
+                            <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Username</dt>
+                            <dd class="mt-1 text-sm font-medium text-white">${username}</dd>
+                        </div>
+                        <div class="relative">
+                            <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Email</dt>
+                            <dd class="mt-1 text-sm font-medium text-white">${email}</dd>
+                        </div>`;
+        
+        // Add validity dates if available
+        if (validFrom || validUntil) {
+            if (validFrom) {
+                certInfoHTML += `
+                        <div class="relative">
+                            <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Valid From</dt>
+                            <dd class="mt-1 text-sm font-medium text-white">${new Date(validFrom).toLocaleString()}</dd>
+                        </div>`;
+            }
+            
+            if (validUntil) {
+                certInfoHTML += `
+                        <div class="relative">
+                            <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Valid Until</dt>
+                            <dd class="mt-1 text-sm font-medium text-white">${new Date(validUntil).toLocaleString()}</dd>
+                        </div>`;
+            }
+        }
+        
+        // Close certificate details section
+        certInfoHTML += `
+                    </dl>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Certificate PEM Display -->
+                <div>
+                    <h3 class="text-md font-semibold text-white mb-4 flex items-center">
+                        <svg class="h-5 w-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Certificate PEM
+                    </h3>
+                    <div class="relative bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+                        <div class="flex items-center justify-between py-2 px-4 bg-gray-800 border-b border-gray-700">
+                            <span class="text-xs font-medium text-gray-400">CERTIFICATE</span>
+                            <button onclick="copyCertificate()" class="flex items-center text-xs font-medium text-red-500 hover:text-red-400 focus:outline-none">
+                                <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                Copy
+                            </button>
+                        </div>
+                        <pre id="certificatePem" class="text-xs font-mono p-4 max-h-48 overflow-y-auto text-gray-300">${data.certificate || ''}</pre>
+                    </div>
+                </div>
+
+                <!-- Public Key Display -->
+                <div>
+                    <h3 class="text-md font-semibold text-white mb-4 flex items-center">
+                        <svg class="h-5 w-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                        Public Key
+                    </h3>
+                    <div class="relative bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+                        <div class="flex items-center justify-between py-2 px-4 bg-gray-800 border-b border-gray-700">
+                            <span class="text-xs font-medium text-gray-400">PUBLIC KEY</span>
+                            <button onclick="copyPublicKey()" class="flex items-center text-xs font-medium text-red-500 hover:text-red-400 focus:outline-none">
+                                <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                Copy
+                            </button>
+                        </div>
+                        <pre id="publicKey" class="text-xs font-mono p-4 max-h-48 overflow-y-auto text-gray-300">${data.public_key || ''}</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Download Button -->
+            <div class="flex justify-end mt-6">
+                <button onclick="downloadCertificate()" 
+                        class="inline-flex items-center px-5 py-2.5 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download Certificate
+                </button>
+            </div>`;
+        
+        // Update the DOM
+        certificateInfo.innerHTML = certInfoHTML;
+        
+    } catch (error) {
+        console.error('Error loading certificate:', error);
+        
+        // Display error state
+        certificateInfo.innerHTML = `
+            <div class="flex items-center justify-center p-8">
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-900 mb-4">
+                        <svg class="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-white">Failed to load certificate</h3>
+                    <p class="mt-2 text-sm text-gray-400">${error.message}</p>
+                    <button onclick="loadCertificate()" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        showToast('Failed to load certificate details', 'error');
+    }
+}
+
+function copyPublicKey() {
+    const publicKey = document.getElementById('publicKey');
+    if (publicKey) {
+        copyToClipboard(publicKey.textContent, 'Public key');
+    }
+}
+
+function copyCertificate() {
+    const certificatePem = document.getElementById('certificatePem');
+    if (certificatePem) {
+        copyToClipboard(certificatePem.textContent, 'Certificate');
+    }
+}
+
+function copyToClipboard(text, itemName) {
+    navigator.clipboard.writeText(text)
+        .then(function() {
+            showToast(`${itemName} copied to clipboard`, 'success');
+        })
+        .catch(function() {
+            showToast(`Failed to copy ${itemName.toLowerCase()}`, 'error');
+        });
+}
+
+function downloadCertificate() {
+    try {
+        const certificatePem = document.getElementById('certificatePem').textContent;
+        const publicKey = document.getElementById('publicKey').textContent;
+        
+        // Try to find username element
+        const usernames = document.querySelectorAll('dt');
+        let userName = "User";
+        
+        for (let i = 0; i < usernames.length; i++) {
+            if (usernames[i].textContent.trim().toLowerCase() === "username") {
+                userName = usernames[i].nextElementSibling.textContent;
+                break;
+            }
+        }
+        
+        const content = `DIGITAL CERTIFICATE
+===================
+
+User: ${userName}
+Date Generated: ${new Date().toLocaleString()}
+
+CERTIFICATE PEM:
+${certificatePem}
+
+PUBLIC KEY:
+${publicKey}`;
+
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        
+        const date = new Date().toISOString().split('T')[0];
+        const filename = `certificate_${date}.txt`;
+        
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        showToast('Certificate downloaded successfully', 'success');
+    } catch (error) {
+        console.error('Download error:', error);
+        showToast('Failed to download certificate', 'error');
+    }
+}
+
+async function verifyCertificate() {
+    const certificate = document.getElementById('verifyInput').value.trim();
+    if (!certificate) {
+        showToast('Please enter a certificate to verify', 'error');
+        return;
+    }
+
+    // Show loading indicator
+    document.getElementById('loadingIndicator').classList.remove('hidden');
+    document.getElementById('verificationResults').classList.add('hidden');
+
+    try {
+        const response = await fetch('/api/certificates/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ certificate: certificate })
+        });
+
+        const data = await response.json();
+        
+        // Hide loading indicator
+        document.getElementById('loadingIndicator').classList.add('hidden');
+        
+        // Show results
+        showVerificationResult(data);
+        
+    } catch (error) {
+        console.error('Verification error:', error);
+        document.getElementById('loadingIndicator').classList.add('hidden');
+        showVerificationError('Failed to verify certificate: ' + (error.message || 'Unknown error'));
+    }
+}
+
+function showVerificationResult(data) {
+    const results = document.getElementById('verificationResults');
+    const status = document.getElementById('verificationStatus');
+    const details = document.getElementById('verificationDetails');
+    
+    results.classList.remove('hidden');
+    
+    if (data.valid) {
+        // Success status
+        status.innerHTML = `
+            <div class="rounded-lg bg-gray-800 p-4 border border-green-600">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-green-400">Certificate Valid</h3>
+                        <div class="mt-2 text-sm text-gray-300">
+                            <p>${data.message}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Certificate details
+        if (data.info) {
+            // Try to find username in various places
+            let username = 'N/A';
+            let email = 'N/A';
+            
+            // Try in subject
+            if (data.info.subject) {
+                const subject = data.info.subject;
+                
+                if (subject.username) username = subject.username;
+                else if (subject.common_name) username = subject.common_name;
+                else if (subject.cn) username = subject.cn;
+                
+                if (subject.email) email = subject.email;
+                
+                // Add subject details to the display
+                let detailsHTML = `
+                    <div class="mt-6 space-y-4">
+                        <h3 class="text-md font-semibold text-white flex items-center">
+                            <svg class="h-5 w-5 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Verified Certificate Details
+                        </h3>
+                        
+                        <div class="bg-gray-800 rounded-xl p-5 border border-gray-700">
+                            <dl class="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+                                <div class="relative">
+                                    <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Username</dt>
+                                    <dd class="mt-1 text-sm font-medium text-white">${username}</dd>
+                                </div>
+                                <div class="relative">
+                                    <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Email</dt>
+                                    <dd class="mt-1 text-sm font-medium text-white">${email}</dd>
+                                </div>
+                `;
+                
+                // Add validity dates if available
+                if (data.info.validity) {
+                    const validity = data.info.validity;
+                    
+                    if (validity.not_before || validity.notBefore || validity.valid_from) {
+                        const validFrom = validity.not_before || validity.notBefore || validity.valid_from;
+                        detailsHTML += `
+                            <div class="relative">
+                                <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Valid From</dt>
+                                <dd class="mt-1 text-sm font-medium text-white">${new Date(validFrom).toLocaleString()}</dd>
+                            </div>
+                        `;
+                    }
+                    
+                    if (validity.not_after || validity.notAfter || validity.valid_until) {
+                        const validUntil = validity.not_after || validity.notAfter || validity.valid_until;
+                        detailsHTML += `
+                            <div class="relative">
+                                <dt class="text-xs font-medium text-gray-400 uppercase tracking-wider">Valid Until</dt>
+                                <dd class="mt-1 text-sm font-medium text-white">${new Date(validUntil).toLocaleString()}</dd>
+                            </div>
+                        `;
+                    }
+                }
+                
+                detailsHTML += `
+                            </dl>
+                        </div>
+                    </div>
+                `;
+                
+                details.innerHTML = detailsHTML;
+            }
+        }
+    } else {
+        // Error status
+        status.innerHTML = `
+            <div class="rounded-lg bg-gray-800 p-4 border border-red-600">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-400">Certificate Invalid</h3>
+                        <div class="mt-2 text-sm text-gray-300">
+                            <p>${data.message}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        details.innerHTML = '';
+    }
+}
+
+function showVerificationError(message) {
+    const results = document.getElementById('verificationResults');
+    const status = document.getElementById('verificationStatus');
+    const details = document.getElementById('verificationDetails');
+    
+    results.classList.remove('hidden');
+    status.innerHTML = `
+        <div class="rounded-lg bg-gray-800 p-4 border border-red-600">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-400">Verification Error</h3>
+                    <div class="mt-2 text-sm text-gray-300">
+                        <p>${message}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    details.innerHTML = '';
+}
+
+function showToast(message, type = 'success') {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'fixed bottom-4 right-4 z-50 flex flex-col space-y-2';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Create toast
+    const toast = document.createElement('div');
+    toast.className = `toast-notification flex items-center p-4 mb-3 max-w-md rounded-lg shadow-lg ${
+        type === 'success' 
+            ? 'bg-gray-800 border-l-4 border-green-500 text-white' 
+            : 'bg-gray-800 border-l-4 border-red-500 text-white'
+    } opacity-0 transform translate-y-2 transition-all duration-300`;
+    
+    // Add icon
+    const icon = document.createElement('div');
+    icon.className = 'flex-shrink-0 w-6 h-6 mr-3';
+    icon.innerHTML = type === 'success'
+        ? `<svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+           </svg>`
+        : `<svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+           </svg>`;
+    
+    // Add message
+    const messageEl = document.createElement('div');
+    messageEl.className = 'ml-3 text-sm font-medium';
+    messageEl.textContent = message;
+    
+    // Add close button
+    const closeButton = document.createElement('button');
+    closeButton.className = `ml-auto -mx-1.5 -my-1.5 rounded-lg focus:ring-2 p-1.5 inline-flex h-8 w-8 ${
+        type === 'success' ? 'text-green-400 hover:bg-gray-700 focus:ring-green-500' : 'text-red-400 hover:bg-gray-700 focus:ring-red-500'
+    }`;
+    closeButton.innerHTML = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+    </svg>`;
+    closeButton.addEventListener('click', function() {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(function() {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    });
+    
+    // Assemble toast
+    toast.appendChild(icon);
+    toast.appendChild(messageEl);
+    toast.appendChild(closeButton);
+    
+    // Add to container
+    toastContainer.appendChild(toast);
+    
+    // Animate in
+    setTimeout(function() {
+        toast.classList.remove('opacity-0', 'translate-y-2');
+    }, 10);
+    
+    // Auto remove after delay
+    setTimeout(function() {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(function() {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 5000);
+}
+</script>
+{% endblock %}

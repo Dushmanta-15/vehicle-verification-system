@@ -1,0 +1,29 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="content-card">
+    <h2>Edit Vehicle</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="vehicle_number">Vehicle Number</label>
+            <input type="text" id="vehicle_number" name="vehicle_number" value="{{ vehicle.vehicle_number }}" required>
+        </div>
+        <div class="form-group">
+            <label for="owner_name">Owner Name</label>
+            <input type="text" id="owner_name" name="owner_name" value="{{ vehicle.owner_name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="model">Model</label>
+            <input type="text" id="model" name="model" value="{{ vehicle.model }}">
+        </div>
+        <div class="form-group">
+            <label for="year">Year</label>
+            <input type="number" id="year" name="year" value="{{ vehicle.year }}">
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Save Changes</button>
+            <a href="{{ url_for('admin.manage_vehicles') }}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

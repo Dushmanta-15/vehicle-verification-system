@@ -1,0 +1,49 @@
+# Core Flask framework
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
+Flask-Mail==0.9.1
+Flask-Migrate==4.0.5
+
+# Database drivers
+PyMySQL==1.1.0
+SQLAlchemy==2.0.20
+
+# Security and Cryptography
+cryptography==41.0.4
+PyOpenSSL==23.2.0
+Werkzeug==2.3.7
+PyJWT==2.8.0
+
+# Face Recognition and Computer Vision
+face-recognition==1.3.0
+opencv-python==4.8.1.78
+dlib==19.24.2
+numpy==1.24.3
+Pillow==10.0.0
+
+# Machine Learning and Data Analysis
+scikit-learn==1.3.0
+pandas==2.0.3
+scipy==1.11.2
+
+# QR Code generation
+qrcode[pil]==7.4.2
+
+# Development and utilities
+python-dotenv==1.0.0
+python-dateutil==2.8.2
+
+# Optional: For better performance in production
+# gunicorn==21.2.0
+# redis==4.6.0
+
+# For Excel export functionality
+openpyxl==3.1.2
+xlsxwriter==3.1.3
+
+# For PDF generation (optional - requires wkhtmltopdf)
+pdfkit==1.0.0
+
+# Additional utilities
+requests==2.31.0
+urllib3==2.0.4

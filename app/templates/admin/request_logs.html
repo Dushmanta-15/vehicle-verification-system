@@ -1,0 +1,254 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="mb-8 flex justify-between items-center">
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+        Request Logs
+    </h1>
+    <div class="flex space-x-4">
+        <a href="{{ url_for('admin.security_dashboard') }}" class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            <span>Back to Security Dashboard</span>
+        </a>
+    </div>
+</div>
+
+<!-- Filter Options -->
+<div class="glass-effect p-4 rounded-2xl mb-6">
+    <div class="flex flex-wrap items-center space-x-4">
+        <div class="font-medium text-gray-700">Filter by:</div>
+        
+        <!-- Anomaly filter -->
+        <div class="relative">
+            <select id="anomalyFilter" class="appearance-none bg-white border border-gray-300 rounded-md py-2 pl-3 pr-10 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="">All Requests</option>
+                <option value="yes" {% if anomaly_filter == 'yes' %}selected{% endif %}>Anomalous Only</option>
+                <option value="no" {% if anomaly_filter == 'no' %}selected{% endif %}>Normal Only</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+        
+        <!-- Method filter -->
+        <div class="relative">
+            <select id="methodFilter" class="appearance-none bg-white border border-gray-300 rounded-md py-2 pl-3 pr-10 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <option value="">All Methods</option>
+                {% for method in methods %}
+                <option value="{{ method }}" {% if method_filter == method %}selected{% endif %}>{{ method }}</option>
+                {% endfor %}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+        
+        <!-- Apply filters button -->
+        <button id="applyFilters" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+            Apply Filters
+        </button>
+        
+        <!-- Clear filters link -->
+        <a href="{{ url_for('admin.request_logs') }}" class="text-blue-600 hover:text-blue-800">
+            Clear Filters
+        </a>
+    </div>
+</div>
+
+<!-- Request Logs Table -->
+<div class="glass-effect rounded-2xl p-6">
+    {% if logs.items %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="text-left border-b border-gray-200">
+                    <th class="px-6 py-4 text-gray-600 font-semibold">ID</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">Method</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">Endpoint</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">User</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">Status</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">Response Time</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">IP Address</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">Date/Time</th>
+                    <th class="px-6 py-4 text-gray-600 font-semibold">Anomaly</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs.items %}
+                <tr class="hover:bg-blue-50 transition-colors">
+                    <td class="px-6 py-4">{{ log.id }}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded-full text-xs
+                            {% if log.method == 'GET' %}bg-blue-100 text-blue-600
+                            {% elif log.method == 'POST' %}bg-green-100 text-green-600
+                            {% elif log.method == 'PUT' %}bg-yellow-100 text-yellow-600
+                            {% elif log.method == 'DELETE' %}bg-red-100 text-red-600
+                            {% else %}bg-gray-100 text-gray-600{% endif %}">
+                            {{ log.method }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 max-w-xs truncate" title="{{ log.endpoint }}">{{ log.endpoint }}</td>
+                    <td class="px-6 py-4">
+                        {% if log.user %}
+                        <a href="{{ url_for('admin.edit_user', user_id=log.user_id) }}" class="text-blue-600 hover:text-blue-800">
+                            {{ log.user.username }}
+                        </a>
+                        {% else %}
+                        <span class="text-gray-500">Anonymous</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded-full text-xs
+                            {% if log.status_code < 300 %}bg-green-100 text-green-600
+                            {% elif log.status_code < 400 %}bg-blue-100 text-blue-600
+                            {% elif log.status_code < 500 %}bg-yellow-100 text-yellow-600
+                            {% else %}bg-red-100 text-red-600{% endif %}">
+                            {{ log.status_code }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="{% if log.response_time_ms > 200 %}text-yellow-600{% else %}text-gray-600{% endif %}">
+                            {{ log.response_time_ms }}ms
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-600">{{ log.ip_address or 'N/A' }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td class="px-6 py-4">
+                        {% if log.has_anomaly %}
+                        <button data-id="{{ log.id }}" data-details="{{ log.anomaly_details|replace('\'', '\\\'') }}" class="show-details bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            <span>Yes</span>
+                        </button>
+                        {% else %}
+                        <span class="text-gray-500">No</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if logs.pages > 1 %}
+    <div class="flex justify-center mt-6 space-x-2">
+        {% if logs.has_prev %}
+        <a href="{{ url_for('admin.request_logs', page=logs.prev_num, anomaly=anomaly_filter, method=method_filter) }}" 
+           class="px-4 py-2 rounded-lg bg-white text-gray-600 hover:bg-blue-50 transition-colors">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        {% endif %}
+        
+        {% for page in range(max(1, logs.page - 2), min(logs.pages + 1, logs.page + 3)) %}
+        <a href="{{ url_for('admin.request_logs', page=page, anomaly=anomaly_filter, method=method_filter) }}" 
+           class="px-4 py-2 rounded-lg {% if page == logs.page %}bg-blue-600 text-white{% else %}bg-white text-gray-600 hover:bg-blue-50{% endif %} transition-colors">
+            {{ page }}
+        </a>
+        {% endfor %}
+        
+        {% if logs.has_next %}
+        <a href="{{ url_for('admin.request_logs', page=logs.next_num, anomaly=anomaly_filter, method=method_filter) }}" 
+           class="px-4 py-2 rounded-lg bg-white text-gray-600 hover:bg-blue-50 transition-colors">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="text-center py-10">
+        <div class="text-4xl text-gray-300 mb-4">
+            <i class="fas fa-search"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-500">No request logs found</h3>
+        <p class="text-gray-500 mt-2">Try adjusting your filters or check back later</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Anomaly Details Modal -->
+<div id="detailsModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Anomaly Details</h3>
+            <button id="closeModal" class="text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="detailsContent" class="py-4 text-gray-700"></div>
+        <div class="mt-4 flex justify-end">
+            <button id="closeModalBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- This comment is used to disable JS validation on Jinja templates -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up filter form
+    document.getElementById('applyFilters').addEventListener('click', function() {
+        var anomalyFilter = document.getElementById('anomalyFilter').value;
+        var methodFilter = document.getElementById('methodFilter').value;
+        
+        var url = "{{ url_for('admin.request_logs') }}?";
+        
+        if (anomalyFilter) {
+            url = url + "anomaly=" + anomalyFilter + "&";
+        }
+        
+        if (methodFilter) {
+            url = url + "method=" + methodFilter + "&";
+        }
+        
+        // Remove trailing & if it exists
+        if (url.charAt(url.length - 1) === '&') {
+            url = url.slice(0, -1);
+        }
+        
+        window.location.href = url;
+    });
+    
+    // Set up detail buttons
+    var detailButtons = document.querySelectorAll('.show-details');
+    detailButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var details = this.getAttribute('data-details');
+            showDetails(details);
+        });
+    });
+    
+    // Set up close modal buttons
+    document.getElementById('closeModal').addEventListener('click', hideDetails);
+    document.getElementById('closeModalBtn').addEventListener('click', hideDetails);
+    
+    // Close modal when clicking outside
+    document.getElementById('detailsModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideDetails();
+        }
+    });
+    
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !document.getElementById('detailsModal').classList.contains('hidden')) {
+            hideDetails();
+        }
+    });
+});
+
+function showDetails(details) {
+    document.getElementById('detailsContent').textContent = details || 'No detailed information available';
+    document.getElementById('detailsModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function hideDetails() {
+    document.getElementById('detailsModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+</script>
+{% endblock %}

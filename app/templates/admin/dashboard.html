@@ -1,0 +1,119 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
+        Dashboard Overview
+    </h1>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-gray-900 bg-opacity-60 backdrop-filter backdrop-blur-sm p-6 rounded-2xl border border-gray-800 hover:border-red-900 transition-all duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-gray-400">Total Users</h3>
+            <div class="w-10 h-10 bg-red-900 bg-opacity-50 rounded-xl flex items-center justify-center">
+                <i class="fas fa-users text-red-500"></i>
+            </div>
+        </div>
+        <div class="text-3xl font-bold text-white">{{ stats.total_users }}</div>
+        <div class="text-sm text-green-400 mt-2">
+            +{{ stats.new_users_today }} today
+        </div>
+    </div>
+
+    <div class="bg-gray-900 bg-opacity-60 backdrop-filter backdrop-blur-sm p-6 rounded-2xl border border-gray-800 hover:border-red-900 transition-all duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-gray-400">Total Vehicles</h3>
+            <div class="w-10 h-10 bg-red-900 bg-opacity-50 rounded-xl flex items-center justify-center">
+                <i class="fas fa-car text-red-500"></i>
+            </div>
+        </div>
+        <div class="text-3xl font-bold text-white">{{ stats.total_vehicles }}</div>
+        <div class="text-sm text-green-400 mt-2">
+            +{{ stats.new_vehicles_today }} today
+        </div>
+    </div>
+
+    <div class="bg-gray-900 bg-opacity-60 backdrop-filter backdrop-blur-sm p-6 rounded-2xl border border-gray-800 hover:border-red-900 transition-all duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-gray-400">Verifications</h3>
+            <div class="w-10 h-10 bg-red-900 bg-opacity-50 rounded-xl flex items-center justify-center">
+                <i class="fas fa-check-circle text-red-500"></i>
+            </div>
+        </div>
+        <div class="text-3xl font-bold text-white">100%</div>
+        <div class="text-sm text-red-400 mt-2">
+            System Status: Active
+        </div>
+    </div>
+
+    <div class="bg-gray-900 bg-opacity-60 backdrop-filter backdrop-blur-sm p-6 rounded-2xl border border-gray-800 hover:border-red-900 transition-all duration-300">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-gray-400">Response Time</h3>
+            <div class="w-10 h-10 bg-red-900 bg-opacity-50 rounded-xl flex items-center justify-center">
+                <i class="fas fa-bolt text-red-500"></i>
+            </div>
+        </div>
+        <div class="text-3xl font-bold text-white">&lt; 1s</div>
+        <div class="text-sm text-red-400 mt-2">
+            Optimal Performance
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Recent Users -->
+    <div class="bg-gray-900 bg-opacity-60 backdrop-filter backdrop-blur-sm rounded-2xl p-6 border border-gray-800 hover:border-red-900 transition-all duration-300">
+        <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
+            <i class="fas fa-users text-red-500 mr-2"></i>
+            Recent Users
+        </h2>
+        <div class="space-y-4">
+            {% for user in recent_users %}
+            <div class="flex items-center justify-between p-4 bg-black bg-opacity-60 rounded-lg hover:bg-gray-900 transition-all duration-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-red-900 bg-opacity-50 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-red-500"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-white">{{ user.username }}</div>
+                        <div class="text-sm text-gray-400">{{ user.email }}</div>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-500">
+                    {{ user.created_at.strftime('%Y-%m-%d') }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Vehicles -->
+    <div class="bg-gray-900 bg-opacity-60 backdrop-filter backdrop-blur-sm rounded-2xl p-6 border border-gray-800 hover:border-red-900 transition-all duration-300">
+        <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
+            <i class="fas fa-car text-red-500 mr-2"></i>
+            Recent Vehicles
+        </h2>
+        <div class="space-y-4">
+            {% for vehicle in recent_vehicles %}
+            <div class="flex items-center justify-between p-4 bg-black bg-opacity-60 rounded-lg hover:bg-gray-900 transition-all duration-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-red-900 bg-opacity-50 rounded-full flex items-center justify-center">
+                        <i class="fas fa-car text-red-500"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium text-white">{{ vehicle.vehicle_number }}</div>
+                        <div class="text-sm text-gray-400">{{ vehicle.owner_name }}</div>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-500">
+                    {{ vehicle.created_at.strftime('%Y-%m-%d') }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

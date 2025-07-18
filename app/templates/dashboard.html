@@ -1,0 +1,709 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
+    <!-- Modern Navigation -->
+    <nav class="bg-black/90 backdrop-filter backdrop-blur-xl fixed w-full top-0 z-50 border-b border-gray-800/30 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-red-600">
+                            <span class="flex items-center">
+                                <svg class="h-6 w-6 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                Vehicle Verification System
+                            </span>
+                        </h1>
+                    </div>
+                    <div class="hidden sm:ml-10 sm:flex sm:space-x-8">
+                        <a href="/dashboard" class="border-red-500 text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-300 hover:text-red-400">
+                            <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            Dashboard
+                        </a>
+                        <a href="/dashboard/vehicles" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-300">
+                            <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            Manage Vehicles
+                        </a>
+                        <a href="/dashboard/verify" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-300">
+                            <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Verify Vehicle
+                        </a>
+                        <a href="/verify-user" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-300">
+                            <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Verify User
+                        </a>
+                        <a href="/certificates" class="border-transparent text-gray-400 hover:border-gray-500 hover:text-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-all duration-300">
+                            <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                            </svg>
+                            Digital Certificates
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center bg-gray-900/50 rounded-full px-4 py-2 border border-gray-700/40 shadow-inner backdrop-blur-sm">
+                        <span class="h-8 w-8 rounded-full bg-gradient-to-r from-red-500 to-red-700 flex items-center justify-center text-white mr-3 shadow-lg text-sm font-bold">
+                            {{ user.username|first|upper }}
+                        </span>
+                        <span class="text-gray-300 font-medium">{{ user.username }}</span>
+                    </div>
+                    <button onclick="logout()" class="flex items-center justify-center text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-red-600/20 transform hover:scale-105">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <div class="sm:hidden">
+        <div id="mobileMenu" class="hidden fixed inset-0 z-50">
+            <div class="fixed inset-0 bg-black/80 backdrop-filter backdrop-blur-sm" onclick="toggleMobileMenu()"></div>
+            <div class="relative bg-black/95 backdrop-filter backdrop-blur-xl h-full w-4/5 max-w-sm flex flex-col transform transition-transform duration-300 ease-out border-r border-gray-800/30">
+                <div class="p-6 border-b border-gray-800/30">
+                    <div class="flex items-center">
+                        <div class="h-12 w-12 rounded-full bg-gradient-to-r from-red-500 to-red-700 flex items-center justify-center text-white font-bold shadow-lg">
+                            {{ user.username|first|upper }}
+                        </div>
+                        <span class="ml-3 font-medium text-white text-lg">{{ user.username }}</span>
+                    </div>
+                </div>
+                <div class="flex-grow overflow-y-auto py-4">
+                    <div class="px-4 space-y-3">
+                        <a href="/dashboard" class="bg-gradient-to-r from-red-900/40 to-red-800/20 border border-red-800/40 text-white block px-4 py-3 rounded-xl text-base font-medium flex items-center shadow-md transition-all duration-300">
+                            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            Dashboard
+                        </a>
+                        <a href="/dashboard/vehicles" class="text-gray-300 hover:bg-gray-800/40 hover:text-white block px-4 py-3 rounded-xl text-base font-medium flex items-center transition-all duration-300">
+                            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            Manage Vehicles
+                        </a>
+                        <a href="/dashboard/verify" class="text-gray-300 hover:bg-gray-800/40 hover:text-white block px-4 py-3 rounded-xl text-base font-medium flex items-center transition-all duration-300">
+                            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Verify Vehicle
+                        </a>
+                        <a href="/verify-user" class="text-gray-300 hover:bg-gray-800/40 hover:text-white block px-4 py-3 rounded-xl text-base font-medium flex items-center transition-all duration-300">
+                            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Verify User
+                        </a>
+                        <a href="/certificates" class="text-gray-300 hover:bg-gray-800/40 hover:text-white block px-4 py-3 rounded-xl text-base font-medium flex items-center transition-all duration-300">
+                            <svg class="h-5 w-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                            </svg>
+                            Digital Certificates
+                        </a>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-gray-800/30">
+                    <button onclick="logout()" class="w-full flex items-center justify-center text-white bg-gradient-to-r from-red-500 to-red-700 px-4 py-3 rounded-xl text-base font-medium shadow-lg hover:shadow-red-600/20 transition-all duration-300 transform hover:scale-[1.02]">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <div class="sm:hidden fixed bottom-6 right-6 z-40">
+        <button onclick="toggleMobileMenu()" class="bg-gradient-to-r from-red-500 to-red-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transform transition-all duration-300 hover:scale-110 hover:shadow-red-600/30">
+            <svg id="menuIcon" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+            <svg id="closeIcon" class="h-6 w-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+        <!-- Dashboard Header -->
+        <div class="mb-10">
+            <div class="bg-black/60 backdrop-filter backdrop-blur-xl p-8 rounded-3xl border border-gray-800/30 shadow-2xl">
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-3 flex items-center">
+                    <svg class="h-10 w-10 mr-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400">Dashboard Overview</span>
+                </h1>
+                <p class="text-gray-400 text-lg">Welcome back to your secure vehicle verification dashboard, {{ user.first_name or user.username }}.</p>
+            </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 mb-12">
+            <!-- Total Vehicles Card -->
+            <div class="group bg-black/40 backdrop-filter backdrop-blur-xl overflow-hidden shadow-2xl rounded-3xl transition-all duration-500 hover:shadow-red-600/20 border border-gray-800/40 transform hover:scale-[1.02] hover:bg-black/60">
+                <div class="p-8">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-gradient-to-br from-red-500/20 to-red-700/10 group-hover:from-red-500/40 group-hover:to-red-700/20 rounded-2xl p-4 transition-all duration-500 shadow-inner border border-red-500/20">
+                                <svg class="h-10 w-10 text-red-500 group-hover:text-red-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-6 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-400 truncate">
+                                    Total Vehicles
+                                </dt>
+                                <dd class="flex items-baseline mt-2">
+                                    <div class="text-4xl font-bold text-white">
+                                        {{ vehicle_count or 0 }}
+                                    </div>
+                                    <div class="ml-3 flex items-baseline text-sm font-semibold text-red-400">
+                                        <span>Registered</span>
+                                    </div>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-black/80 to-gray-900/80 px-8 py-4 flex justify-between items-center border-t border-gray-800/30">
+                    <div class="text-sm">
+                        <a href="/dashboard/vehicles" class="font-medium text-red-500 hover:text-red-400 flex items-center group-hover:translate-x-2 transition-all duration-300">
+                            View all vehicles
+                            <svg class="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Certificate Status Card -->
+            <div class="group bg-black/40 backdrop-filter backdrop-blur-xl overflow-hidden shadow-2xl rounded-3xl transition-all duration-500 hover:shadow-red-600/20 border border-gray-800/40 transform hover:scale-[1.02] hover:bg-black/60">
+                <div class="p-8">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-gradient-to-br from-green-500/20 to-green-700/10 group-hover:from-green-500/40 group-hover:to-green-700/20 rounded-2xl p-4 transition-all duration-500 shadow-inner border border-green-500/20">
+                                <svg class="h-10 w-10 text-green-500 group-hover:text-green-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-6 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-400 truncate">
+                                    Certificate Status
+                                </dt>
+                                <dd class="flex items-baseline mt-2">
+                                    <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-sm border {{ cert_valid and 'bg-green-900/30 text-green-400 border-green-800/40' or 'bg-red-900/30 text-red-400 border-red-800/40' }}">
+                                        <span class="flex h-2.5 w-2.5 relative mr-3">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ cert_valid and 'bg-green-400' or 'bg-red-400' }} opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 {{ cert_valid and 'bg-green-500' or 'bg-red-500' }}"></span>
+                                        </span>
+                                        {{ cert_valid and 'Active & Valid' or 'Invalid' }}
+                                    </div>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-r from-black/80 to-gray-900/80 px-8 py-4 flex justify-between items-center border-t border-gray-800/30">
+                    <div class="text-sm">
+                        <a href="/certificates" class="font-medium text-green-500 hover:text-green-400 flex items-center group-hover:translate-x-2 transition-all duration-300">
+                            View certificate details
+                            <svg class="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="group bg-black/40 backdrop-filter backdrop-blur-xl overflow-hidden shadow-2xl rounded-3xl transition-all duration-500 hover:shadow-red-600/20 border border-gray-800/40 transform hover:scale-[1.02] hover:bg-black/60 sm:col-span-2 lg:col-span-1">
+                <div class="p-8">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <svg class="h-6 w-6 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Quick Actions
+                    </h3>
+                    <div class="space-y-4">
+                        <a href="/dashboard/vehicles" class="flex items-center px-5 py-4 text-sm font-medium text-gray-300 bg-black/60 backdrop-blur-sm rounded-2xl border border-gray-800/40 hover:bg-red-900/30 hover:border-red-700/40 hover:text-white transition-all duration-300 transform hover:translate-x-2 shadow-lg hover:shadow-xl group">
+                            <svg class="mr-4 h-5 w-5 text-gray-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Add New Vehicle
+                        </a>
+                        <a href="/dashboard/verify" class="flex items-center px-5 py-4 text-sm font-medium text-gray-300 bg-black/60 backdrop-blur-sm rounded-2xl border border-gray-800/40 hover:bg-red-900/30 hover:border-red-700/40 hover:text-white transition-all duration-300 transform hover:translate-x-2 shadow-lg hover:shadow-xl group">
+                            <svg class="mr-4 h-5 w-5 text-gray-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Verify Vehicle
+                        </a>
+                        <a href="/verify-user" class="flex items-center px-5 py-4 text-sm font-medium text-gray-300 bg-black/60 backdrop-blur-sm rounded-2xl border border-gray-800/40 hover:bg-red-900/30 hover:border-red-700/40 hover:text-white transition-all duration-300 transform hover:translate-x-2 shadow-lg hover:shadow-xl group">
+                            <svg class="mr-4 h-5 w-5 text-gray-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Verify User
+                        </a>
+                        <a href="/certificates" class="flex items-center px-5 py-4 text-sm font-medium text-gray-300 bg-black/60 backdrop-blur-sm rounded-2xl border border-gray-800/40 hover:bg-red-900/30 hover:border-red-700/40 hover:text-white transition-all duration-300 transform hover:translate-x-2 shadow-lg hover:shadow-xl group">
+                            <svg class="mr-4 h-5 w-5 text-gray-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            View Certificate
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div class="bg-black/40 backdrop-filter backdrop-blur-xl shadow-2xl rounded-3xl overflow-hidden border border-gray-800/40 transition-all duration-500 hover:shadow-red-600/10">
+            <div class="px-8 py-6 border-b border-gray-800/30 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-white flex items-center">
+                    <svg class="h-7 w-7 mr-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Recent Activity
+                </h2>
+                <button id="refreshActivity" class="text-gray-500 hover:text-red-400 p-3 rounded-full hover:bg-gray-800/50 transition-all duration-300 transform hover:scale-110">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-8">
+                <!-- Activity Loading Skeleton -->
+                <div id="activitySkeleton" class="animate-pulse space-y-6 hidden">
+                    <div class="flex space-x-4">
+                        <div class="rounded-2xl bg-gray-800/70 h-14 w-14"></div>
+                        <div class="flex-1 space-y-3 py-2">
+                            <div class="h-4 bg-gray-800/70 rounded-full w-3/4"></div>
+                            <div class="h-3 bg-gray-800/70 rounded-full w-1/2"></div>
+                        </div>
+                    </div>
+                    <div class="flex space-x-4">
+                        <div class="rounded-2xl bg-gray-800/70 h-14 w-14"></div>
+                        <div class="flex-1 space-y-3 py-2">
+                            <div class="h-4 bg-gray-800/70 rounded-full w-3/4"></div>
+                            <div class="h-3 bg-gray-800/70 rounded-full w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Items -->
+                <div id="recentActivity" class="space-y-6">
+                    {% if recent_activities and recent_activities|length > 0 %}
+                        {% for activity in recent_activities %}
+                            <div class="flex space-x-4 p-5 rounded-2xl hover:bg-gray-800/20 transition-all duration-300 backdrop-blur-sm border border-transparent hover:border-gray-700/30 group cursor-pointer">
+                                <div class="flex-shrink-0">
+                                    <div class="h-14 w-14 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300
+                                        {% if activity.type == 'vehicle_add' %}
+                                            bg-gradient-to-br from-red-500/20 to-red-700/10 text-red-500 border border-red-700/30 group-hover:from-red-500/40 group-hover:to-red-700/20
+                                        {% elif activity.type == 'verification' %}
+                                            bg-gradient-to-br from-green-500/20 to-green-700/10 text-green-400 border border-green-700/30 group-hover:from-green-500/40 group-hover:to-green-700/20
+                                        {% elif activity.type == 'error' %}
+                                            bg-gradient-to-br from-orange-500/20 to-orange-700/10 text-orange-500 border border-orange-700/30 group-hover:from-orange-500/40 group-hover:to-orange-700/20
+                                        {% else %}
+                                            bg-gradient-to-br from-blue-500/20 to-blue-700/10 text-blue-500 border border-blue-700/30 group-hover:from-blue-500/40 group-hover:to-blue-700/20
+                                        {% endif %}">
+                                        <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            {% if activity.type == 'vehicle_add' %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                            {% elif activity.type == 'verification' %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            {% elif activity.type == 'error' %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            {% else %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                            {% endif %}
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-base font-semibold text-white group-hover:text-gray-100 transition-colors">{{ activity.description }}</p>
+                                    <p class="text-sm text-gray-400 mt-2 flex items-center">
+                                        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <time datetime="{{ activity.timestamp }}">
+                                            {% if activity.timestamp %}
+                                                {{ activity.timestamp[:10] }} at {{ activity.timestamp[11:16] }}
+                                            {% else %}
+                                                Recently
+                                            {% endif %}
+                                        </time>
+                                    </p>
+                                </div>
+                                <div class="flex-shrink-0 self-center">
+                                    <svg class="h-5 w-5 text-gray-600 group-hover:text-gray-500 transform group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="flex flex-col items-center justify-center py-16 text-gray-500 bg-black/20 rounded-3xl border border-gray-800/20 backdrop-filter backdrop-blur-sm">
+                            <svg class="h-24 w-24 text-gray-700 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-xl font-semibold text-gray-400 mb-2">No recent activity</p>
+                            <p class="text-base text-gray-600">Your activities will appear here as you use the system</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status Banner -->
+        <div class="mt-12 bg-gradient-to-r from-green-900/20 to-emerald-900/20 border border-green-800/30 rounded-2xl p-6 backdrop-filter backdrop-blur-sm">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <svg class="h-8 w-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-base font-semibold text-green-300">System Status: All services operational</p>
+                    <p class="text-sm text-green-400/80">Vehicle verification, user authentication, and blockchain logging are functioning normally.</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-900/40 text-green-300 border border-green-700/40">
+                        <span class="flex h-2 w-2 relative mr-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        Online
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-black/60 backdrop-filter backdrop-blur-xl mt-16 py-10 border-t border-gray-800/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col items-center md:flex-row md:justify-between">
+                <div class="text-center md:text-left">
+                    <p class="text-sm text-gray-400">© 2025 Vehicle Verification System. All rights reserved.</p>
+                    <p class="text-xs text-gray-500 mt-1">Secured by blockchain technology, advanced cryptography, facial recognition, and anomaly detection..</p>
+                </div>
+                <div class="mt-6 md:mt-0">
+                    <div class="flex items-center space-x-6">
+                        <a href="#" class="text-gray-400 hover:text-red-500 transition-colors duration-300 transform hover:scale-110">
+                            <span class="sr-only">Help Center</span>
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-red-500 transition-colors duration-300 transform hover:scale-110">
+                            <span class="sr-only">Privacy Policy</span>
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-red-500 transition-colors duration-300 transform hover:scale-110">
+                            <span class="sr-only">Terms of Service</span>
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-red-500 transition-colors duration-300 transform hover:scale-110">
+                            <span class="sr-only">Documentation</span>
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Enhanced mobile menu toggle with smooth animations
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIcon = document.getElementById('menuIcon');
+    const closeIcon = document.getElementById('closeIcon');
+    
+    if (mobileMenu.classList.contains('hidden')) {
+        // Show menu
+        mobileMenu.classList.remove('hidden');
+        menuIcon.classList.add('hidden');
+        closeIcon.classList.remove('hidden');
+        
+        // Animate the mobile menu panel
+        setTimeout(() => {
+            const panel = document.querySelector('#mobileMenu > div:nth-child(2)');
+            panel.style.transform = 'translateX(0)';
+        }, 10);
+    } else {
+        // Hide menu
+        const panel = document.querySelector('#mobileMenu > div:nth-child(2)');
+        panel.style.transform = 'translateX(-100%)';
+        
+        setTimeout(() => {
+            mobileMenu.classList.add('hidden');
+            menuIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
+            // Reset for next open
+            panel.style.transform = 'translateX(-100%)';
+        }, 300);
+    }
+}
+
+// Enhanced logout functionality with better user feedback
+async function logout() {
+    try {
+        const logoutBtn = event.currentTarget;
+        const originalContent = logoutBtn.innerHTML;
+        
+        // Show loading state
+        logoutBtn.disabled = true;
+        logoutBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        logoutBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Logging out...
+        `;
+        
+        const response = await fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showToast('Logout successful! Redirecting...', 'success');
+            
+            // Smooth fade out effect
+            document.body.style.transition = 'opacity 0.5s ease-out';
+            document.body.style.opacity = '0';
+            
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 800);
+        } else {
+            throw new Error('Logout failed');
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+        showToast('Failed to logout. Please try again.', 'error');
+        
+        // Reset button state
+        const logoutBtn = event.currentTarget;
+        logoutBtn.disabled = false;
+        logoutBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+        logoutBtn.innerHTML = originalContent;
+    }
+}
+
+// Enhanced toast notification system
+function showToast(message, type = 'info') {
+    // Remove existing toasts with animation
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => {
+        toast.style.transform = 'translateY(-10px)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    });
+    
+    // Create new toast with modern design
+    const toast = document.createElement('div');
+    toast.className = `toast-notification fixed bottom-6 right-6 px-6 py-4 rounded-2xl text-white text-sm font-semibold shadow-2xl z-50 transition-all duration-500 flex items-center backdrop-filter backdrop-blur-xl border ${
+        type === 'error' 
+            ? 'bg-gradient-to-r from-red-600/90 to-red-700/90 border-red-500/30' 
+            : 'bg-gradient-to-r from-green-600/90 to-green-700/90 border-green-500/30'
+    }`;
+    
+    const icon = document.createElement('span');
+    icon.className = 'mr-3 flex-shrink-0';
+    icon.innerHTML = type === 'error' 
+        ? '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' 
+        : '<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+    
+    const text = document.createElement('span');
+    text.textContent = message;
+    
+    toast.appendChild(icon);
+    toast.appendChild(text);
+    
+    // Initial state
+    toast.style.transform = 'translateY(10px)';
+    toast.style.opacity = '0';
+    
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.style.transform = 'translateY(0)';
+        toast.style.opacity = '1';
+    }, 10);
+    
+    // Auto remove
+    setTimeout(() => {
+        toast.style.transform = 'translateY(-10px)';
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 500);
+    }, 4000);
+}
+
+// Enhanced page initialization with staggered animations
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate cards with staggered timing
+    const cards = document.querySelectorAll('.grid > div, .bg-black\\/40');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1)';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100 + (index * 150));
+    });
+    
+    // Enhanced refresh activity functionality
+    const refreshButton = document.getElementById('refreshActivity');
+    if (refreshButton) {
+        refreshButton.addEventListener('click', function() {
+            this.style.transform = 'rotate(360deg)';
+            this.style.transition = 'transform 1s ease-in-out';
+            
+            // Show skeleton
+            const skeleton = document.getElementById('activitySkeleton');
+            const activity = document.getElementById('recentActivity');
+            
+            if (skeleton && activity) {
+                activity.style.opacity = '0';
+                setTimeout(() => {
+                    activity.classList.add('hidden');
+                    skeleton.classList.remove('hidden');
+                }, 200);
+                
+                // Simulate loading
+                setTimeout(() => {
+                    skeleton.classList.add('hidden');
+                    activity.classList.remove('hidden');
+                    activity.style.opacity = '1';
+                    showToast('Activity refreshed successfully!', 'success');
+                }, 1500);
+            } else {
+                showToast('Activity data is up to date!', 'success');
+            }
+            
+            // Reset button rotation
+            setTimeout(() => {
+                this.style.transform = 'rotate(0deg)';
+            }, 1000);
+        });
+    }
+    
+    // Add scroll effects for navbar
+    const navbar = document.querySelector('nav');
+    let lastScrollY = window.scrollY;
+    
+    window.addEventListener('scroll', function() {
+        const currentScrollY = window.scrollY;
+        
+        if (currentScrollY > 50) {
+            navbar.style.backgroundColor = 'rgba(0, 0, 0, 0.95)';
+            navbar.style.backdropFilter = 'blur(20px)';
+        } else {
+            navbar.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+            navbar.style.backdropFilter = 'blur(12px)';
+        }
+        
+        lastScrollY = currentScrollY;
+    });
+    
+    // Add intersection observer for fade-in animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe elements for animation
+    const animateElements = document.querySelectorAll('.bg-black\\/40:not(.grid > div)');
+    animateElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1)';
+        observer.observe(el);
+    });
+    
+    console.log('🚀 Vehicle Verification Dashboard loaded successfully!');
+});
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + K for quick search (future feature)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        showToast('Quick search coming soon!', 'info');
+    }
+    
+    // Escape to close mobile menu
+    if (e.key === 'Escape') {
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (!mobileMenu.classList.contains('hidden')) {
+            toggleMobileMenu();
+        }
+    }
+});
+
+// Service worker registration (for future PWA functionality)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+                console.log('SW registered: ', registration);
+            })
+            .catch(function(registrationError) {
+                console.log('SW registration failed: ', registrationError);
+            });
+    });
+}
+</script>
+{% endblock %}

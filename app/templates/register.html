@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="glass-effect rounded-2xl shadow-xl overflow-hidden bg-black">
+        <div class="p-8">
+            <div class="flex flex-col items-center mb-8">
+                <div class="h-16 w-16 bg-red-900 rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">Create Account</h2>
+                <p class="text-gray-300 mt-2">Register for a new account</p>
+            </div>
+            
+            <form id="registerForm" class="space-y-6">
+                <!-- Name Fields -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="col-span-1">
+                        <label for="firstName" class="block text-sm font-medium text-white mb-1">First Name *</label>
+                        <input type="text" id="firstName" name="firstName" required 
+                               pattern="[A-Za-z ]+"
+                               class="block w-full px-4 py-3 rounded-lg border border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 ease-in-out hover:border-red-500"
+                               placeholder="First Name"
+                               title="Only letters and spaces allowed">
+                        <div class="mt-1 text-xs text-gray-300">Required, letters only</div>
+                    </div>
+                    <div class="col-span-1">
+                        <label for="middleName" class="block text-sm font-medium text-white mb-1">Middle Name</label>
+                        <input type="text" id="middleName" name="middleName"
+                               pattern="[A-Za-z ]*"
+                               class="block w-full px-4 py-3 rounded-lg border border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 ease-in-out hover:border-red-500"
+                               placeholder="Middle Name (Optional)"
+                               title="Only letters and spaces allowed">
+                        <div class="mt-1 text-xs text-gray-300">Optional, letters only</div>
+                    </div>
+                    <div class="col-span-1">
+                        <label for="lastName" class="block text-sm font-medium text-white mb-1">Last Name *</label>
+                        <input type="text" id="lastName" name="lastName" required 
+                               pattern="[A-Za-z ]+"
+                               class="block w-full px-4 py-3 rounded-lg border border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 ease-in-out hover:border-red-500"
+                               placeholder="Last Name"
+                               title="Only letters and spaces allowed">
+                        <div class="mt-1 text-xs text-gray-300">Required, letters only</div>
+                    </div>
+                </div>
+                
+                
+                <!-- Contact Information -->
+                <div class="space-y-4">
+                    <div class="relative">
+                        <label for="mobile" class="block text-sm font-medium text-white mb-1">Mobile Number *</label>
+                        <div class="flex">
+                            <select id="countryCode" name="countryCode" required
+                                    class="block w-24 px-2 py-3 rounded-l-lg border border-r-0 border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 ease-in-out hover:border-red-500">
+                                <option value="+91">+91</option>
+                                <!-- Add more country codes as needed -->
+                            </select>
+                            <input type="tel" id="mobile" name="mobile" required 
+                                   pattern="[0-9]{10}"
+                                   class="block flex-1 px-4 py-3 rounded-r-lg border border-l-0 border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 ease-in-out hover:border-red-500"
+                                   placeholder="10-digit mobile number"
+                                   title="Please enter a valid 10-digit mobile number">
+                        </div>
+                        <div class="mt-1 text-xs text-gray-300">Required, exactly 10 digits</div>
+                    </div>
+                
+                    <div class="relative">
+                        <label for="address" class="block text-sm font-medium text-white mb-1">Address</label>
+                        <textarea id="address" name="address" required 
+                                  class="block w-full px-4 py-3 rounded-lg border border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 ease-in-out hover:border-red-500"
+                                  placeholder="Enter your full address" rows="3"></textarea>
+                    </div>
+                
+                    <div class="relative">
+                        <label for="gender" class="block text-sm font-medium text-white mb-1">Gender</label>
+                        <select id="gender" name="gender" required
+                                class="block w-full px-4 py-3 rounded-lg border border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 ease-in-out hover:border-red-500">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="relative">
+                        <label for="username" class="block text-sm font-medium text-white mb-1">Username</label>
+                        <input type="text" id="username" name="username" required 
+                               class="block w-full px-4 py-3 rounded-lg border border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 ease-in-out hover:border-red-500"
+                               placeholder="Choose a username">
+                    </div>
+                
+                    <div class="relative">
+                        <label for="email" class="block text-sm font-medium text-white mb-1">Email</label>
+                        <input type="email" id="email" name="email" required 
+                               class="block w-full px-4 py-3 rounded-lg border border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 ease-in-out hover:border-red-500"
+                               placeholder="Enter your email">
+                    </div>
+                
+                    <div class="relative">
+                        <label for="password" class="block text-sm font-medium text-white mb-1">Password *</label>
+                        <input type="password" id="password" name="password" required 
+                               pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+                               class="block w-full px-4 py-3 rounded-lg border border-gray-800 bg-black text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 ease-in-out hover:border-red-500"
+                               placeholder="Create a strong password"
+                               title="Password must be at least 8 characters long and contain both letters and numbers">
+                        <div class="mt-1 text-sm text-gray-300 space-y-1">
+                            <p>Password requirements:</p>
+                            <ul class="list-disc pl-5 text-xs">
+                                <li>At least 8 characters long</li>
+                                <li>Must contain both letters and numbers</li>
+                                <li>No special characters required</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="block text-sm font-medium text-white mb-1">Face Capture</label>
+                    <div class="relative rounded-xl overflow-hidden bg-black border-2 border-dashed border-gray-800">
+                        <video id="videoElement" class="w-full h-64 object-cover" autoplay></video>
+                        <canvas id="canvasElement" style="display:none;"></canvas>
+                        <img id="capturedImage" class="w-full h-64 object-cover" style="display:none;">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70" id="cameraOverlay">
+                            <p class="text-white text-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <span class="text-sm">Click 'Start Camera' to begin</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button type="button" id="startCamera" 
+                                class="flex-1 px-4 py-3 bg-black text-white rounded-lg border border-gray-800 hover:bg-gray-900 transition-colors duration-200 flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <span>Start Camera</span>
+                        </button>
+                        <button type="button" id="captureButton" 
+                                class="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            </svg>
+                            <span>Capture Face</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="w-full border-t border-gray-800"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-black text-gray-300">Agreement</span>
+                    </div>
+                </div>
+
+                <div class="text-sm text-white">
+                    <label class="flex items-center">
+                        <input type="checkbox" required class="rounded bg-black border-gray-800 text-red-600 shadow-sm focus:border-red-600 focus:ring focus:ring-red-500 focus:ring-opacity-50">
+                        <span class="ml-2">I agree to the <a href="#" class="text-red-500 hover:text-red-400">Terms of Service</a> and <a href="#" class="text-red-500 hover:text-red-400">Privacy Policy</a></span>
+                    </label>
+                </div>
+
+                <button type="submit" 
+                        class="w-full px-4 py-3 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-lg hover:from-red-700 hover:to-red-900 transition-all duration-200 flex items-center justify-center space-x-2 transform hover:scale-[1.02]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Create Account</span>
+                </button>
+
+                <div class="text-center mt-6">
+                    <p class="text-white">
+                        Already have an account? 
+                        <a href="/login" class="font-semibold text-red-500 hover:text-red-400 transition-colors">
+                            Login here
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+<script>
+    // Make sure the navigation links in the header redirect to the homepage
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all navigation links with the Features and How It Works text
+        const navLinks = document.querySelectorAll('nav a, header a, .navigation a');
+        
+        navLinks.forEach(link => {
+            // Check if the link text includes Features or How It Works (case insensitive)
+            const linkText = link.textContent.trim().toLowerCase();
+            if (linkText.includes('features') || linkText.includes('how it works')) {
+                // Set the href to the homepage
+                link.setAttribute('href', '/');
+                
+                // Add click event listener as a backup
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = '/';
+                });
+            }
+        });
+
+        // Original register.js code
+        const cameraOverlay = document.getElementById('cameraOverlay');
+        const videoElement = document.getElementById('videoElement');
+        
+        // Hide overlay when camera starts
+        videoElement.addEventListener('play', function() {
+            cameraOverlay.style.display = 'none';
+        });
+        
+        // Show overlay when camera stops
+        videoElement.addEventListener('ended', function() {
+            cameraOverlay.style.display = 'flex';
+        });
+
+        // Form validation
+        const form = document.getElementById('registerForm');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate name fields
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const nameRegex = /^[A-Za-z ]+$/;
+            
+            if (!nameRegex.test(firstName)) {
+                alert('First name should only contain letters and spaces');
+                return;
+            }
+            
+            if (!nameRegex.test(lastName)) {
+                alert('Last name should only contain letters and spaces');
+                return;
+            }
+
+            // Validate middle name if provided
+            const middleName = document.getElementById('middleName').value.trim();
+            if (middleName && !nameRegex.test(middleName)) {
+                alert('Middle name should only contain letters and spaces');
+                return;
+            }
+
+            // Validate mobile number
+            const mobile = document.getElementById('mobile').value.trim();
+            if (!/^[0-9]{10}$/.test(mobile)) {
+                alert('Please enter a valid 10-digit mobile number');
+                return;
+            }
+
+            // Validate password
+            const password = document.getElementById('password').value;
+            if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)) {
+                alert('Password must be at least 8 characters long and contain both letters and numbers');
+                return;
+            }
+
+            // If all validations pass, submit the form
+            form.submit();
+        });
+    });
+</script>
+{% endblock %}

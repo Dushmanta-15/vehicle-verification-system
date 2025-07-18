@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+        <div class="bg-black shadow rounded-lg p-6 border border-gray-800">
+            <h2 class="text-lg font-medium text-white mb-4">Verify User</h2>
+            
+            <!-- Face Scanner -->
+            <div class="mb-6">
+                <div class="w-full max-w-lg mx-auto border border-gray-800 rounded-lg overflow-hidden">
+                    <video id="video" class="w-full" autoplay playsinline></video>
+                    <canvas id="canvas" class="hidden"></canvas>
+                </div>
+                <div class="mt-4 flex justify-center space-x-4">
+                    <button onclick="startCamera()" id="startButton"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-700">
+                        Start Camera
+                    </button>
+                    <button onclick="stopCamera()" id="stopButton"
+                            class="hidden inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                        Stop Camera
+                    </button>
+                    <button onclick="verifyFace()" id="verifyButton"
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 opacity-50 cursor-not-allowed"
+                            disabled>
+                        Verify User
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center">
+                <div class="bg-black p-6 rounded-lg shadow-xl border border-gray-800">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+                    <p class="mt-4 text-center text-gray-300">Processing...</p>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="mt-8 hidden">
+                <div id="verificationStatus"></div>
+                <div id="userInfo" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let video = document.getElementById('video');
+let canvas = document.getElementById('canvas');
+let stream = null;
+
+function showLoading(show) {
+    document.getElementById('loadingIndicator').classList.toggle('hidden', !show);
+}
+
+function enableVerifyButton(enable) {
+    const verifyButton = document.getElementById('verifyButton');
+    if (enable) {
+        verifyButton.disabled = false;
+        verifyButton.classList.remove('opacity-50', 'cursor-not-allowed');
+    } else {
+        verifyButton.disabled = true;
+        verifyButton.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+async function startCamera() {
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ 
+            video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                facingMode: "user"
+            }
+        });
+        video.srcObject = stream;
+        
+        // Update UI
+        document.getElementById('startButton').classList.add('hidden');
+        document.getElementById('stopButton').classList.remove('hidden');
+        enableVerifyButton(true);
+        
+        // Clear previous results
+        document.getElementById('results').classList.add('hidden');
+        document.getElementById('verificationStatus').innerHTML = '';
+        document.getElementById('userInfo').innerHTML = '';
+        
+    } catch (err) {
+        console.error("Error accessing camera:", err);
+        alert("Could not access camera. Please check permissions.");
+    }
+}
+
+function stopCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+        stream = null;
+    }
+    
+    // Update UI
+    document.getElementById('startButton').classList.remove('hidden');
+    document.getElementById('stopButton').classList.add('hidden');
+    enableVerifyButton(false);
+}
+
+async function verifyFace() {
+    if (!stream) {
+        alert('Please start the camera first');
+        return;
+    }
+
+    showLoading(true);
+    try {
+        // Capture frame from video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        
+        // Convert to blob
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+        
+        // Create form data
+        const formData = new FormData();
+        formData.append('image', blob, 'face.jpg');
+
+        // Send to server
+        const response = await fetch('/api/verify-user-face', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            displaySuccess(data.user);
+        } else {
+            displayError(data.error || 'Verification failed');
+        }
+    } catch (error) {
+        console.error('Verification error:', error);
+        displayError('Failed to verify user');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function displaySuccess(user) {
+    const status = document.getElementById('verificationStatus');
+    const info = document.getElementById('userInfo');
+    const results = document.getElementById('results');
+
+    status.innerHTML = `
+        <div class="bg-gray-900 border-l-4 border-green-500 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-green-400">User verified successfully</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Create user information section
+    let userHtml = `
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+            <div class="col-span-2">
+                <dt class="text-sm font-medium text-gray-400">Full Name</dt>
+                <dd class="mt-1 text-sm text-white">${user.first_name} ${user.middle_name ? user.middle_name + ' ' : ''}${user.last_name}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-400">Email</dt>
+                <dd class="mt-1 text-sm text-white">${user.email}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-400">Mobile Number</dt>
+                <dd class="mt-1 text-sm text-white">${user.mobile_number}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-400">Gender</dt>
+                <dd class="mt-1 text-sm text-white">${user.gender || 'N/A'}</dd>
+            </div>
+            <div class="col-span-2">
+                <dt class="text-sm font-medium text-gray-400">Address</dt>
+                <dd class="mt-1 text-sm text-white">${user.address}</dd>
+            </div>
+    `;
+
+    // Add vehicle information section if available
+    if (user.vehicles && user.vehicles.length > 0) {
+        userHtml += `
+            <div class="col-span-2 mt-6 pt-6 border-t border-gray-700">
+                <h3 class="text-md font-medium text-gray-300 mb-4">Associated Vehicles (${user.vehicles.length})</h3>
+            </div>
+        `;
+
+        // Loop through all vehicles and display each one
+        user.vehicles.forEach((vehicle, index) => {
+            userHtml += `
+                <div class="col-span-2 ${index > 0 ? 'mt-6 pt-4 border-t border-gray-800' : ''}">
+                    <h4 class="text-sm font-medium text-gray-300 mb-2">Vehicle #${index + 1}</h4>
+                    <div class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-400">Vehicle Number</dt>
+                            <dd class="mt-1 text-sm text-white">${vehicle.vehicle_number}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-400">Owner Name</dt>
+                            <dd class="mt-1 text-sm text-white">${vehicle.owner_name}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-400">Model</dt>
+                            <dd class="mt-1 text-sm text-white">${vehicle.model || 'N/A'}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-400">Year</dt>
+                            <dd class="mt-1 text-sm text-white">${vehicle.year || 'N/A'}</dd>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Add verification timestamp at the end
+        userHtml += `
+            <div class="col-span-2 mt-4">
+                <dt class="text-sm font-medium text-gray-400">Verification Time</dt>
+                <dd class="mt-1 text-sm text-white">${new Date().toLocaleString()}</dd>
+            </div>
+        `;
+    } else {
+        userHtml += `
+            <div class="col-span-2 mt-6 pt-6 border-t border-gray-700">
+                <h3 class="text-md font-medium text-gray-300 mb-4">Associated Vehicles</h3>
+                <p class="text-sm text-gray-400">No vehicles registered for this user.</p>
+            </div>
+        `;
+    }
+
+    // Close the dl tag
+    userHtml += `</dl>`;
+    
+    // Set the HTML content
+    info.innerHTML = userHtml;
+    results.classList.remove('hidden');
+}
+</script>
+{% endblock %}
