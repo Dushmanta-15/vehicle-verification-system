@@ -2,6 +2,9 @@
 
 A comprehensive digital vehicle verification platform prototype that combines **facial recognition**, **cryptographic security**, and **blockchain technology** to provide tamper-proof vehicle identity verification.
 
+![Image Alt](<img width="1919" height="1126" alt="image" src="https://github.com/user-attachments/assets/3dfca322-b5b2-41c3-9395-dba4b54aa707" />
+) 
+
 > **⚠️ Note:** This is a research prototype demonstrating advanced security concepts. Not intended for production deployment without further security auditing and compliance validation.
 
 ## 🌟 Features
